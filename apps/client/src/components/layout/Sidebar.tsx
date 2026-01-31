@@ -31,13 +31,26 @@ interface SidebarContentProps {
   onItemClick?: () => void
 }
 
+import { useAuth } from "@/context/AuthContext"
+
+// ... imports
+
 const SidebarContent = ({ collapsed, mobile, onItemClick }: SidebarContentProps) => {
   const { theme, setTheme } = useTheme()
   const location = useLocation()
+  const { user, logout, isAdmin } = useAuth()
+
+  // Filter nav items based on role
+  const filteredNavItems = navItems.filter(item => {
+    if (item.path === "/create-club" || item.path === "/input-match") {
+      return isAdmin
+    }
+    return true
+  })
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header - Only for Desktop Collapsible */}
+      {/* ... Header (unchanged) ... */}
       {!mobile && (
         <div className="flex items-center justify-between p-4 border-b h-16">
           {!collapsed && (
@@ -58,13 +71,12 @@ const SidebarContent = ({ collapsed, mobile, onItemClick }: SidebarContentProps)
               </span>
             </motion.div>
           )}
-          {/* Toggle Button passed from parent or handled here? Parent handles state, but button is here */}
         </div>
       )}
 
       {/* Navigation */}
       <nav className="flex-1 p-2 space-y-1 mt-2">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.path
           return (
             <Link key={item.path} to={item.path} onClick={onItemClick}>
@@ -93,22 +105,23 @@ const SidebarContent = ({ collapsed, mobile, onItemClick }: SidebarContentProps)
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="w-full justify-start"
         >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5 mr-2" />
-          ) : (
-            <Moon className="h-5 w-5 mr-2" />
-          )}
+          {theme === "dark" ? <Sun className="h-5 w-5 mr-2" /> : <Moon className="h-5 w-5 mr-2" />}
           {(!collapsed || mobile) && <span>Toggle Theme</span>}
         </Button>
         
-        {(!collapsed || mobile) && (
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 animate-fade-in">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
-              RGS
+        {(!collapsed || mobile) && user && (
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 animate-fade-in group relative">
+             {/* Logout Button Overlay */}
+             <div className="absolute inset-0 bg-background/80 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Button variant="destructive" size="sm" onClick={logout} className="w-full h-full">Logout</Button>
+             </div>
+
+            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+              {user.name?.charAt(0) || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">RGS</p>
-              <p className="text-xs text-muted-foreground">Admin</p>
+              <p className="text-sm font-medium truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.role}</p>
             </div>
           </div>
         )}

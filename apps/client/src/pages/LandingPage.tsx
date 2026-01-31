@@ -1,17 +1,23 @@
 import { useNavigate } from "react-router-dom"
 import { motion, useScroll, useTransform } from "framer-motion"
+import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Users, Trophy, ChevronRight, Zap, BarChart3, Star } from "lucide-react"
 
 const LandingPage = () => {
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth()
   const { scrollY } = useScroll()
   const y1 = useTransform(scrollY, [0, 300], [0, 100])
   const y2 = useTransform(scrollY, [0, 300], [0, -100])
 
   const handleLogin = (role: 'admin' | 'user') => {
-    navigate('/dashboard')
+    if (role === 'admin') {
+      navigate('/login')
+    } else {
+      navigate('/register')
+    }
   }
 
   const container = {
@@ -92,38 +98,55 @@ const LandingPage = () => {
                The ultimate football management sandbox. Create clubs, simulate matches with probability-based AI, and track live Premier League stats.
              </motion.p>
              
-             {/* Role Selection Card */}
+             {/* Role Selection / Dashboard Button */}
              <motion.div variants={item} className="mt-12">
                <Card className="max-w-md mx-auto border-primary/20 shadow-2xl bg-card/60 backdrop-blur-xl hover:shadow-primary/10 transition-shadow duration-500">
                  <CardHeader>
-                   <CardTitle>Start Your Career</CardTitle>
-                   <CardDescription>Select access level</CardDescription>
+                   <CardTitle>{isAuthenticated ? `Welcome back, ${user?.name?.split(' ')[0]}!` : "Start Your Career"}</CardTitle>
+                   <CardDescription>{isAuthenticated ? "Continue where you left off" : "Select access level"}</CardDescription>
                  </CardHeader>
                  <CardContent className="space-y-4">
-                   <Button 
-                     size="lg" 
-                     className="w-full justify-between group h-14 text-lg relative overflow-hidden" 
-                     onClick={() => handleLogin('admin')}
-                   >
-                     <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                     <div className="flex items-center gap-3">
-                       <Shield className="h-5 w-5" />
-                       Login as Admin
-                     </div>
-                     <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                   </Button>
-                   <Button 
-                     variant="outline" 
-                     size="lg" 
-                     className="w-full justify-between group h-14 text-lg hover:bg-secondary/50"
-                     onClick={() => handleLogin('user')}
-                   >
-                     <div className="flex items-center gap-3">
-                       <Users className="h-5 w-5" />
-                       Continue as User
-                     </div>
-                     <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                   </Button>
+                   {isAuthenticated ? (
+                     <Button 
+                       size="lg" 
+                       className="w-full h-14 text-lg relative overflow-hidden group"
+                       onClick={() => navigate('/dashboard')}
+                     >
+                       <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                       <div className="flex items-center gap-3">
+                         <Shield className="h-5 w-5" />
+                         Go to Dashboard
+                       </div>
+                       <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                     </Button>
+                   ) : (
+                     <>
+                       <Button 
+                         size="lg" 
+                         className="w-full justify-between group h-14 text-lg relative overflow-hidden" 
+                         onClick={() => handleLogin('admin')}
+                       >
+                         <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                         <div className="flex items-center gap-3">
+                           <Shield className="h-5 w-5" />
+                           Login as Admin
+                         </div>
+                         <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                       </Button>
+                       <Button 
+                         variant="outline" 
+                         size="lg" 
+                         className="w-full justify-between group h-14 text-lg hover:bg-secondary/50"
+                         onClick={() => handleLogin('user')}
+                       >
+                         <div className="flex items-center gap-3">
+                           <Users className="h-5 w-5" />
+                           Continue as User
+                         </div>
+                         <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                       </Button>
+                     </>
+                   )}
                  </CardContent>
                </Card>
              </motion.div>

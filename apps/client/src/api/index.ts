@@ -24,6 +24,12 @@ export interface Player {
 
 // Typed API functions for TanStack Query
 export const api = {
+  // Auth
+  register: (data: any) => API.post("/auth/register", data).then(res => res.data),
+  login: (data: any) => API.post("/auth/login", data).then(res => res.data),
+  getAuthMe: (token: string) => API.get("/auth/me", {
+    headers: { Authorization: `Bearer ${token}` }
+  }).then(res => res.data),
   getKlasemen: async () => {
     const res = await API.get("/klub/klasemen")
     return res.data

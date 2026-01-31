@@ -49,3 +49,13 @@ model Match {
   club          Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId        Int
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER") // ADMIN, USER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
