@@ -12,10 +12,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Trophy } from "lucide-react"
+import { Trophy, Users } from "lucide-react"
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button"
 
 interface KlasemenItem {
   no: number
+  id: number
   klub: string
   main: number
   menang: number
@@ -107,6 +110,7 @@ const ViewKlasemen = () => {
                 <TableHead className="text-center">GF</TableHead>
                 <TableHead className="text-center">GA</TableHead>
                 <TableHead className="text-center font-bold">Pts</TableHead>
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -129,6 +133,13 @@ const ViewKlasemen = () => {
                   <TableCell className="text-center">{club.goal_masuk}</TableCell>
                   <TableCell className="text-center">{club.goal_kemasukan}</TableCell>
                   <TableCell className="text-center font-bold text-lg">{club.point}</TableCell>
+                  <TableCell>
+                    <Link to={`/squad/${club.id}`}>
+                      <Button variant="ghost" size="icon" title="Manage Squad">
+                        <Users className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

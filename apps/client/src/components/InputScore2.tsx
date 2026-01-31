@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
-import { BarChart3, Plus, Trash2, Send } from "lucide-react"
+import { BarChart3, Plus, Trash2, Send, BrainCircuit, Loader2 } from "lucide-react"
+
+// ... imports
 
 interface Match {
   ClubId: string
@@ -72,6 +74,39 @@ const InputScoreForm = () => {
   const isSaveDisabled = matches.some(
     (match) => !match.ClubId || !match.opponent_name || !match.score
   ) || isLoading
+
+  const handleSimulate = async (index: number) => {
+    const match = matches[index]
+    if (!match.ClubId || !match.opponent_name) {
+      toast.error("Please select both clubs first")
+      return
+    }
+
+    // Find opponent ID
+    const opponent = clubs?.find(c => c.team === match.opponent_name)
+    if (!opponent) return
+
+    try {
+      const loadingToast = toast.loading("Simulating match...")
+      
+      const res = await API.post("/klub/simulate", {
+        homeId: match.ClubId,
+        awayId: opponent.id
+      })
+      
+      const { homeScore, awayScore, events } = res.data
+      
+      handleMatchChange(index, "score", `${homeScore}-${awayScore}`)
+      
+      toast.dismiss(loadingToast)
+      toast.success(`Simulation complete!`, {
+        description: `${events.length} important events generated.`
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error("Simulation failed")
+    }
+  }
 
   if (clubsLoading) {
     return (
@@ -152,11 +187,22 @@ const InputScoreForm = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Score</Label>
-                  <Input
-                    placeholder="e.g. 3-1"
-                    value={match.score}
-                    onChange={(e) => handleMatchChange(index, "score", e.target.value)}
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g. 3-1"
+                      value={match.score}
+                      onChange={(e) => handleMatchChange(index, "score", e.target.value)}
+                    />
+                    <Button 
+                      variant="secondary" 
+                      size="icon" 
+                      onClick={() => handleSimulate(index)}
+                      title="Simulate with AI"
+                      disabled={!match.ClubId || !match.opponent_name}
+                    >
+                      <BrainCircuit className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

@@ -98,6 +98,7 @@ export const viewKlasemen = async (c: Context) => {
     return c.json(
       klasemen.map((club, index) => ({
         no: index + 1,
+        id: club.id,
         klub: club.team,
         main: club.main,
         menang: club.menang,
@@ -114,6 +115,9 @@ export const viewKlasemen = async (c: Context) => {
   }
 }
 
+// Phase 2: AI Match Engine
+import { simulateMatch } from '../lib/matchEngine'
+
 export const getAllClub = async (c: Context) => {
   try {
     const clubs = await prisma.club.findMany({
@@ -123,5 +127,22 @@ export const getAllClub = async (c: Context) => {
   } catch (err) {
     console.error(err)
     return c.json({ error: 'Failed to get clubs' }, 500)
+  }
+}
+
+export const runMatchSimulation = async (c: Context) => {
+  try {
+    const { homeId, awayId } = await c.req.json()
+    
+    if (!homeId || !awayId) {
+      return c.json({ error: 'homeId and awayId are required' }, 400)
+    }
+
+    const result = await simulateMatch(Number(homeId), Number(awayId))
+    
+    return c.json(result)
+  } catch (err) {
+    console.error(`[runMatchSimulation] Error: ${err instanceof Error ? err.message : String(err)}`)
+    return c.json({ error: 'Failed to simulate match' }, 500)
   }
 }

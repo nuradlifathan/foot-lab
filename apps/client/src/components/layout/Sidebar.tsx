@@ -1,8 +1,10 @@
 import { useState } from "react"
+import { motion } from "framer-motion"
 import { Link, useLocation } from "react-router-dom"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import {
   Home,
   PlusCircle,
@@ -12,6 +14,7 @@ import {
   Moon,
   Sun,
   ChevronLeft,
+  Users
 } from "lucide-react"
 
 const navItems = [
@@ -22,87 +25,174 @@ const navItems = [
   { path: "/real-klasemen", icon: Trophy, label: "Live Standings" },
 ]
 
-export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+interface SidebarContentProps {
+  collapsed?: boolean
+  mobile?: boolean
+  onItemClick?: () => void
+}
+
+const SidebarContent = ({ collapsed, mobile, onItemClick }: SidebarContentProps) => {
   const { theme, setTheme } = useTheme()
   const location = useLocation()
 
   return (
-    <aside
-      className={cn(
-        "sticky top-0 h-screen border-r bg-card transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
+    <div className="flex h-full flex-col">
+      {/* Header - Only for Desktop Collapsible */}
+      {!mobile && (
+        <div className="flex items-center justify-between p-4 border-b h-16">
+          {!collapsed && (
+            <motion.div 
+              className="flex items-center gap-2 overflow-hidden whitespace-nowrap"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <motion.span
+                className="text-2xl"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                ⚽
+              </motion.span>
+              <span className="text-xl font-bold text-primary">
+                Foot Lab
+              </span>
+            </motion.div>
+          )}
+          {/* Toggle Button passed from parent or handled here? Parent handles state, but button is here */}
+        </div>
       )}
-    >
-      <div className="flex h-full flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          {!collapsed && (
-            <h1 className="text-xl font-bold text-primary animate-fade-in">
-              ⚽ Foot Lab
-            </h1>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-2 space-y-1 mt-2">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path
+          return (
+            <Link key={item.path} to={item.path} onClick={onItemClick}>
+              <div
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-accent",
+                  isActive && "bg-primary text-primary-foreground hover:bg-primary/90",
+                  collapsed && !mobile && "justify-center"
+                )}
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                {(!collapsed || mobile) && (
+                  <span className="animate-fade-in">{item.label}</span>
+                )}
+              </div>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="p-4 border-t space-y-2">
+        <Button
+          variant="ghost"
+          size={collapsed && !mobile ? "icon" : "default"}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="w-full justify-start"
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5 mr-2" />
+          ) : (
+            <Moon className="h-5 w-5 mr-2" />
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? <Menu className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-          </Button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-2 space-y-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path
-            return (
-              <Link key={item.path} to={item.path}>
-                <div
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-accent",
-                    isActive && "bg-primary text-primary-foreground hover:bg-primary/90",
-                    collapsed && "justify-center"
-                  )}
-                >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  {!collapsed && (
-                    <span className="animate-fade-in">{item.label}</span>
-                  )}
-                </div>
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="p-4 border-t space-y-2">
-          <Button
-            variant="ghost"
-            size={collapsed ? "icon" : "default"}
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-full"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-            {!collapsed && <span className="ml-2">Toggle Theme</span>}
-          </Button>
-          
-          {!collapsed && (
-            <div className="flex items-center gap-3 p-2 rounded-lg bg-muted animate-fade-in">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
-                RGS
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">RGS</p>
-                <p className="text-xs text-muted-foreground">Admin</p>
-              </div>
+          {(!collapsed || mobile) && <span>Toggle Theme</span>}
+        </Button>
+        
+        {(!collapsed || mobile) && (
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 animate-fade-in">
+            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
+              RGS
             </div>
-          )}
-        </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">RGS</p>
+              <p className="text-xs text-muted-foreground">Admin</p>
+            </div>
+          </div>
+        )}
       </div>
-    </aside>
+    </div>
+  )
+}
+
+export default function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+
+  // Only show sidebar on these paths (and child paths)
+  const validPrefixes = [
+    "/dashboard",
+    "/create-club", 
+    "/input-match", 
+    "/view-klasemen", 
+    "/real-klasemen", 
+    "/squad", 
+    "/create-player"
+  ]
+
+  const shouldShowSidebar = validPrefixes.some(prefix => location.pathname.startsWith(prefix))
+
+  if (!shouldShowSidebar) return null
+
+  return (
+    <>
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 border-b bg-background/80 backdrop-blur-md">
+        <div className="flex items-center gap-2">
+           <motion.span
+              className="text-2xl"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+              ⚽
+            </motion.span>
+            <span className="text-xl font-bold">Foot Lab</span>
+        </div>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-72">
+             <SheetHeader className="p-4 border-b text-left">
+              <SheetTitle className="flex items-center gap-2">
+                 <span className="text-2xl">⚽</span> Foot Lab
+              </SheetTitle>
+            </SheetHeader>
+            <SidebarContent mobile onItemClick={() => setOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* spacer for mobile header */}
+      <div className="lg:hidden h-16" />
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={cn(
+          "hidden lg:block sticky top-0 h-screen border-r bg-card transition-all duration-300",
+          collapsed ? "w-16" : "w-64"
+        )}
+      >
+        <div className="relative h-full">
+           <SidebarContent collapsed={collapsed} />
+           {/* Desktop Collapse Button */}
+           <div className="absolute top-4 right-[-12px] z-20"> {/* Floating button style */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-6 w-6 rounded-full shadow-md"
+                onClick={() => setCollapsed(!collapsed)}
+              >
+                <ChevronLeft className={cn("h-3 w-3 transition-transform", collapsed && "rotate-180")} />
+              </Button>
+           </div>
+        </div>
+      </aside>
+    </>
   )
 }

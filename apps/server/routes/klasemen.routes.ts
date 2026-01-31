@@ -11,5 +11,7 @@ router.post('/input-score', klasemenControllers.inputScore)
 router.get('/klasemen', klasemenControllers.viewKlasemen)
 // Get All Club
 router.get('/', klasemenControllers.getAllClub)
+// Simulate Match
+router.post('/simulate', klasemenControllers.runMatchSimulation)
 
 export default router
