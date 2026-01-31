@@ -1,13 +1,13 @@
-# Klasemen Website
+# Foot Lab
 
-Modern football league standings app with real-time Premier League data.
+Modern football league manager & live standings app.
 
 ## Tech Stack
-- **Frontend**: Vite + React + TypeScript
+- **Frontend**: Vite + React + TypeScript + shadcn/ui
 - **Backend**: Hono (Node.js)
 - **Database**: PostgreSQL (Neon)
 - **ORM**: Prisma
-- **UI**: Chakra UI
+- **UI**: shadcn/ui + Tailwind CSS
 - **Form**: React Hook Form + Zod
 - **Data Fetching**: TanStack Query
 
