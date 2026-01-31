@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Users, Trophy, ChevronRight, Zap, BarChart3, Star } from "lucide-react"
+import RealKlasemen from "@/components/RealKlasemen"
 
 const LandingPage = () => {
   const navigate = useNavigate()
@@ -154,42 +155,66 @@ const LandingPage = () => {
         </section>
 
         {/* Features Grid */}
-        <section className="py-24 px-6 relative">
+        {/* Real-time Data Preview Section */}
+        <section className="py-24 px-6 relative overflow-hidden">
           <div className="absolute inset-0 bg-muted/50 skew-y-3 -z-10 scale-110" />
-          <div className="max-w-6xl mx-auto">
-             <motion.h2 
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               className="text-4xl font-bold text-center mb-16"
-             >
-               Everything you need to <span className="text-primary">Win</span>
-             </motion.h2>
-             
-             <div className="grid md:grid-cols-3 gap-8">
-               <FeatureCard 
-                 icon={<Trophy className="h-8 w-8 text-yellow-500" />}
-                 title="League Management"
-                 desc="Create customized clubs with unique crests. Manage detailed standings with automatic points calculation."
-                 delay={0.1}
-                 color="group-hover:text-yellow-500"
-               />
-               <FeatureCard 
-                 icon={<Zap className="h-8 w-8 text-blue-500" />}
-                 title="AI Match Engine"
-                 desc="Simulate matches with our advanced probabilistic engine. Stats (ATK/MID/DEF) determine the outcome."
-                 delay={0.2}
-                 color="group-hover:text-blue-500"
-               />
-               <FeatureCard 
-                 icon={<BarChart3 className="h-8 w-8 text-green-500" />}
-                 title="Live Data Integration"
-                 desc="Connects to real-world Football APIs to fetch and display up-to-date Premier League standings."
-                 delay={0.3}
-                 color="group-hover:text-green-500"
-               />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-6xl mx-auto"
+          >
+             <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="space-y-6 text-left order-2 lg:order-1">
+                   <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+                     Live Data. <br/>
+                     <span className="text-primary">Real Impact.</span>
+                   </h2>
+                   <p className="text-xl text-muted-foreground leading-relaxed">
+                     Don't just simulate. Connect to the real world. Foot Lab integrates with official Football Data APIs to bring you live Premier League standings, match results, and form guides directly into your dashboard.
+                   </p>
+                   
+                   <div className="space-y-4">
+                      <div className="flex items-center gap-4 p-4 rounded-xl bg-card border shadow-sm">
+                         <div className="p-2 bg-yellow-500/10 rounded-lg">
+                            <Zap className="w-6 h-6 text-yellow-500" />
+                         </div>
+                         <div>
+                            <h4 className="font-bold">Live Match Updates</h4>
+                            <p className="text-sm text-muted-foreground">Scores update in real-time as goals fly in.</p>
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-4 p-4 rounded-xl bg-card border shadow-sm">
+                         <div className="p-2 bg-blue-500/10 rounded-lg">
+                            <BarChart3 className="w-6 h-6 text-blue-500" />
+                         </div>
+                         <div>
+                            <h4 className="font-bold">Detailed Stats</h4>
+                            <p className="text-sm text-muted-foreground">Track GD, Points, and Form across 5+ leagues.</p>
+                         </div>
+                      </div>
+                   </div>
+
+                   <Button size="lg" className="mt-4" onClick={() => navigate('/real-klasemen')}>
+                     Check Live Standings
+                     <ChevronRight className="ml-2 h-4 w-4" />
+                   </Button>
+                </div>
+
+                <div className="order-1 lg:order-2">
+                   <div className="relative">
+                      {/* Decorative elements */}
+                      <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
+                      <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+                      
+                      <Card className="glass border-primary/20 bg-gradient-to-br from-card/80 to-primary/5 p-6 shadow-2xl relative z-10 transition-transform duration-500 hover:scale-[1.02]">
+                        <RealKlasemen previewMode />
+                      </Card>
+                   </div>
+                </div>
              </div>
-          </div>
+          </motion.div>
         </section>
       </main>
 

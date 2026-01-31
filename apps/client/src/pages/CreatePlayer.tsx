@@ -19,7 +19,7 @@ import { motion } from "framer-motion"
 // --- Manual Form Schema ---
 const playerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  position: z.enum(["GK", "DEF", "MID", "ATK"]),
+  position: z.enum(["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST"]),
   pace: z.number().min(1).max(99),
   shooting: z.number().min(1).max(99),
   passing: z.number().min(1).max(99),
@@ -34,7 +34,7 @@ type PlayerFormValues = z.infer<typeof playerSchema>
 
 // --- AI Generator Component ---
 const AIGenerator = ({ clubId, onSuccess }: { clubId: string; onSuccess: () => void }) => {
-  const [position, setPosition] = useState("ATK")
+  const [position, setPosition] = useState("ST")
   const [country, setCountry] = useState("EN")
   const [loading, setLoading] = useState(false)
 
@@ -66,6 +66,19 @@ const AIGenerator = ({ clubId, onSuccess }: { clubId: string; onSuccess: () => v
     { code: "ID", name: "Indonesia 🇮🇩" },
   ]
 
+  const positionOptions = [
+    { label: "Goalkeeper (GK)", value: "GK" },
+    { label: "Centre Back (CB)", value: "CB" },
+    { label: "Left Back (LB)", value: "LB" },
+    { label: "Right Back (RB)", value: "RB" },
+    { label: "Defensive Mid (CDM)", value: "CDM" },
+    { label: "Centre Mid (CM)", value: "CM" },
+    { label: "Attacking Mid (CAM)", value: "CAM" },
+    { label: "Left Wing (LW)", value: "LW" },
+    { label: "Right Wing (RW)", value: "RW" },
+    { label: "Striker (ST)", value: "ST" },
+  ]
+
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
       <CardHeader>
@@ -87,10 +100,9 @@ const AIGenerator = ({ clubId, onSuccess }: { clubId: string; onSuccess: () => v
                  <SelectValue />
                </SelectTrigger>
                <SelectContent>
-                 <SelectItem value="GK">Goalkeeper (GK)</SelectItem>
-                 <SelectItem value="DEF">Defender (DEF)</SelectItem>
-                 <SelectItem value="MID">Midfielder (MID)</SelectItem>
-                 <SelectItem value="ATK">Attacker (ATK)</SelectItem>
+                 {positionOptions.map(pos => (
+                   <SelectItem key={pos.value} value={pos.value}>{pos.label}</SelectItem>
+                 ))}
                </SelectContent>
              </Select>
           </div>
@@ -138,7 +150,7 @@ const CreatePlayer = () => {
   const form = useForm<PlayerFormValues>({
     resolver: zodResolver(playerSchema),
     defaultValues: {
-       name: "", position: "MID", pace: 50, shooting: 50, 
+       name: "", position: "CM", pace: 50, shooting: 50, 
        passing: 50, dribbling: 50, defending: 50, physical: 50, stamina: 70
     }
   })
@@ -147,12 +159,12 @@ const CreatePlayer = () => {
   const calculateOverall = (values: PlayerFormValues) => {
     const { position, pace, shooting, passing, dribbling, defending, physical } = values
     let ovr = 0
-    switch (position) {
-      case "GK": ovr = (defending * 0.4) + (physical * 0.3) + (passing * 0.1) + (pace * 0.2); break
-      case "DEF": ovr = (defending * 0.4) + (physical * 0.3) + (pace * 0.15) + (passing * 0.15); break
-      case "MID": ovr = (passing * 0.35) + (dribbling * 0.25) + (defending * 0.2) + (shooting * 0.1) + (pace * 0.1); break
-      case "ATK": ovr = (shooting * 0.4) + (pace * 0.25) + (dribbling * 0.25) + (physical * 0.1); break
-    }
+    // Simplified logic for UI update
+    if (position === 'GK') ovr = (defending * 0.5) + (physical * 0.2) + (passing * 0.1) + (pace * 0.2)
+    else if (['CB', 'LB', 'RB'].includes(position)) ovr = (defending * 0.5) + (physical * 0.3) + (passing * 0.1) + (pace * 0.1)
+    else if (['CDM', 'CM', 'CAM'].includes(position)) ovr = (passing * 0.4) + (dribbling * 0.3) + (shooting * 0.1) + (defending * 0.2)
+    else ovr = (shooting * 0.5) + (pace * 0.2) + (dribbling * 0.2) + (physical * 0.1) // ATK
+    
     return Math.round(ovr)
   }
 
@@ -162,11 +174,13 @@ const CreatePlayer = () => {
     setTimeout(() => {
       const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min
       const position = form.getValues("position")
+      // Generic base stats
       let stats = { pace: rand(40,90), shooting: rand(30,85), passing: rand(40,88), dribbling: rand(40,90), defending: rand(30,85), physical: rand(50,90), stamina: rand(60,95) }
       
-      if (position === "ATK") { stats.shooting = rand(70,95); stats.pace = rand(70,95) }
-      else if (position === "MID") { stats.passing = rand(75,95); stats.dribbling = rand(70,90) }
-      else if (position === "DEF") { stats.defending = rand(75,95); stats.physical = rand(70,95) }
+      // Detailed bias
+      if (['ST', 'LW', 'RW'].includes(position)) { stats.shooting = rand(70,95); stats.pace = rand(70,95) }
+      else if (['CM', 'CAM', 'CDM'].includes(position)) { stats.passing = rand(75,95); stats.dribbling = rand(70,90) }
+      else if (['CB', 'LB', 'RB'].includes(position)) { stats.defending = rand(75,95); stats.physical = rand(70,95) }
       else if (position === "GK") { stats.defending = rand(75,95); stats.pace = rand(30,60); stats.shooting = rand(10,40) }
 
       form.setValue("pace", stats.pace); form.setValue("shooting", stats.shooting)
@@ -192,6 +206,19 @@ const CreatePlayer = () => {
       toast.error("Failed to create player")
     }
   }
+
+  const positionOptions = [
+    { label: "Goalkeeper (GK)", value: "GK" },
+    { label: "Centre Back (CB)", value: "CB" },
+    { label: "Left Back (LB)", value: "LB" },
+    { label: "Right Back (RB)", value: "RB" },
+    { label: "Defensive Mid (CDM)", value: "CDM" },
+    { label: "Centre Mid (CM)", value: "CM" },
+    { label: "Attacking Mid (CAM)", value: "CAM" },
+    { label: "Left Wing (LW)", value: "LW" },
+    { label: "Right Wing (RW)", value: "RW" },
+    { label: "Striker (ST)", value: "ST" },
+  ]
 
   return (
     <div className="max-w-3xl mx-auto py-6 space-y-6">
@@ -238,8 +265,9 @@ const CreatePlayer = () => {
                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                              <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                              <SelectContent>
-                               <SelectItem value="GK">GK</SelectItem><SelectItem value="DEF">Defender</SelectItem>
-                               <SelectItem value="MID">Midfielder</SelectItem><SelectItem value="ATK">Attacker</SelectItem>
+                               {positionOptions.map(pos => (
+                                 <SelectItem key={pos.value} value={pos.value}>{pos.label}</SelectItem>
+                               ))}
                              </SelectContent>
                            </Select>
                          <FormMessage /></FormItem>

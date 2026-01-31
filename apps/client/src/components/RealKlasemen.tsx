@@ -54,7 +54,7 @@ const leagues = [
   { code: "WC", name: "World Cup", flag: "🌍", color: "from-green-600 to-blue-600" },
 ]
 
-const RealKlasemen = () => {
+const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
   const [selectedLeague, setSelectedLeague] = useState(leagues[0])
   const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
   const [isRateLimited, setIsRateLimited] = useState(false)
@@ -108,6 +108,58 @@ const RealKlasemen = () => {
     if (!isRateLimited) {
       refetch()
     }
+  }
+
+  if (previewMode) {
+    // Simplified render for Landing Page
+    return (
+       <div className="space-y-4">
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-2">
+                <span className="text-2xl">🇬🇧</span>
+                <span className="font-bold">Premier League Live</span>
+             </div>
+             {isLoading && <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />}
+          </div>
+
+          {!data || isLoading ? (
+             <div className="space-y-2">
+               {Array.from({ length: 5 }).map((_, i) => (
+                 <Skeleton key={i} className="h-10 w-full" />
+               ))}
+             </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden bg-card/50 backdrop-blur-sm">
+             <Table>
+                <TableHeader>
+                   <TableRow>
+                     <TableHead className="w-8">#</TableHead>
+                     <TableHead>Club</TableHead>
+                     <TableHead className="text-right">Pts</TableHead>
+                   </TableRow>
+                </TableHeader>
+                <TableBody>
+                   {data.standings[0]?.table.slice(0, 5).map((team) => (
+                      <TableRow key={team.position} className="hover:bg-muted/50">
+                         <TableCell className="font-bold">{team.position}</TableCell>
+                         <TableCell>
+                           <div className="flex items-center gap-2">
+                              <img src={team.team.crest} className="h-5 w-5 object-contain" />
+                              <span className="text-sm font-medium">{team.team.name}</span>
+                           </div>
+                         </TableCell>
+                         <TableCell className="text-right font-bold">{team.points}</TableCell>
+                      </TableRow>
+                   ))}
+                </TableBody>
+             </Table>
+             <div className="p-3 bg-muted/20 text-center">
+                <p className="text-xs text-muted-foreground">Top 5 shown. Sign in for full stats.</p>
+             </div>
+            </div>
+          )}
+       </div>
+    )
   }
 
   return (

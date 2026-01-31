@@ -21,6 +21,13 @@ const getWeightedRandom = (min: number, max: number, bias: number = 1) => {
   return Math.floor(raw * (range + 1)) + min
 }
 
+export const generatePreferredFoot = (): string => {
+  const roll = Math.random()
+  if (roll < 0.7) return 'Right'
+  if (roll < 0.9) return 'Left'
+  return 'Both'
+}
+
 export const generateStats = (position: string): PlayerStats => {
   let stats: PlayerStats
 
@@ -35,53 +42,107 @@ export const generateStats = (position: string): PlayerStats => {
         shooting: getRandomInt(20, 50), // Kicking
         passing: getRandomInt(40, 75),
         dribbling: getRandomInt(30, 60), // Agility
-        defending: getWeightedRandom(70, 95, 0.5), // Reflexes/Handling
+        defending: getWeightedRandom(75, 95, 0.4), // Reflexes
         physical: getRandomInt(60, 85),
-        stamina: getRandomInt(60, 80), // GKs run less
+        stamina: getRandomInt(60, 80),
         overall: 0
       }
       break
 
-    case 'DEF':
+    case 'CB': // Centre Back (Def + Phy)
       stats = {
-        pace: getRandomInt(50, 85),
-        shooting: getRandomInt(30, 65),
-        passing: getRandomInt(50, 80),
-        dribbling: getRandomInt(40, 70),
-        defending: getWeightedRandom(75, 95, 0.3), // Key stat
-        physical: getWeightedRandom(70, 95, 0.5), // Key stat
-        stamina: getRandomInt(70, 95),
+        pace: getRandomInt(50, 75),
+        shooting: getRandomInt(30, 60),
+        passing: getRandomInt(50, 75),
+        dribbling: getRandomInt(40, 65),
+        defending: getWeightedRandom(75, 95, 0.3),
+        physical: getWeightedRandom(75, 95, 0.3),
+        stamina: getRandomInt(70, 90),
+        overall: 0
+      }
+      break
+    
+    case 'LB': // Fullbacks (Pace + Def + Pass)
+    case 'RB':
+      stats = {
+        pace: getWeightedRandom(70, 90, 0.5),
+        shooting: getRandomInt(40, 70),
+        passing: getRandomInt(60, 80),
+        dribbling: getRandomInt(60, 80),
+        defending: getWeightedRandom(65, 85, 0.5),
+        physical: getRandomInt(60, 80),
+        stamina: getWeightedRandom(80, 95, 0.4),
         overall: 0
       }
       break
 
-    case 'MID':
+    case 'CDM': // Def Mid (Def + Phy + Pass)
       stats = {
-        pace: getRandomInt(60, 85),
-        shooting: getRandomInt(50, 85),
-        passing: getWeightedRandom(75, 95, 0.3), // Key stat
-        dribbling: getWeightedRandom(70, 90, 0.5),
-        defending: getRandomInt(50, 80),
-        physical: getRandomInt(60, 85),
-        stamina: getWeightedRandom(80, 99, 0.3), // Mids run the most
+        pace: getRandomInt(55, 75),
+        shooting: getRandomInt(50, 75),
+        passing: getWeightedRandom(70, 90, 0.4),
+        dribbling: getRandomInt(60, 80),
+        defending: getWeightedRandom(70, 90, 0.4),
+        physical: getWeightedRandom(70, 90, 0.4),
+        stamina: getWeightedRandom(80, 99, 0.3),
         overall: 0
       }
       break
 
-    case 'ATK':
+    case 'CM': // Box to Box (Balanced)
       stats = {
-        pace: getWeightedRandom(70, 95, 0.5),
-        shooting: getWeightedRandom(75, 97, 0.3), // Key stat
-        passing: getRandomInt(50, 80),
-        dribbling: getWeightedRandom(70, 95, 0.5),
-        defending: getRandomInt(20, 50),
-        physical: getRandomInt(60, 85),
+        pace: getRandomInt(60, 80),
+        shooting: getRandomInt(60, 80),
+        passing: getWeightedRandom(75, 90, 0.4),
+        dribbling: getRandomInt(65, 85),
+        defending: getRandomInt(60, 80),
+        physical: getRandomInt(65, 85),
+        stamina: getWeightedRandom(85, 99, 0.3),
+        overall: 0
+      }
+      break
+
+    case 'CAM': // Playmaker (Pass + Drib + Shoot)
+      stats = {
+        pace: getRandomInt(65, 85),
+        shooting: getWeightedRandom(70, 85, 0.5),
+        passing: getWeightedRandom(80, 95, 0.3),
+        dribbling: getWeightedRandom(75, 95, 0.4),
+        defending: getRandomInt(30, 60),
+        physical: getRandomInt(50, 70),
         stamina: getRandomInt(70, 90),
         overall: 0
       }
       break
 
-    default:
+    case 'LW': // Wingers (Pace + Drib)
+    case 'RW':
+      stats = {
+        pace: getWeightedRandom(80, 97, 0.3),
+        shooting: getWeightedRandom(65, 85, 0.5),
+        passing: getRandomInt(60, 80),
+        dribbling: getWeightedRandom(75, 95, 0.4),
+        defending: getRandomInt(20, 50),
+        physical: getRandomInt(50, 75),
+        stamina: getRandomInt(70, 90),
+        overall: 0
+      }
+      break
+
+    case 'ST': // Striker (Shoot + Phy/Pace)
+      stats = {
+        pace: getWeightedRandom(70, 90, 0.5),
+        shooting: getWeightedRandom(80, 97, 0.3),
+        passing: getRandomInt(50, 75),
+        dribbling: getRandomInt(60, 85),
+        defending: getRandomInt(20, 45),
+        physical: getWeightedRandom(70, 90, 0.5),
+        stamina: getRandomInt(70, 90),
+        overall: 0
+      }
+      break
+
+    default: // Fallback
       stats = {
         pace: 50, shooting: 50, passing: 50, dribbling: 50, defending: 50, physical: 50, stamina: 50, overall: 50
       }
@@ -96,25 +157,22 @@ export const generateStats = (position: string): PlayerStats => {
      })
   }
 
-  // Calculate Overall
-  const weights = {
-    GK: { def: 0.8, phy: 0.1, pas: 0.1 },
-    DEF: { def: 0.5, phy: 0.3, pac: 0.1, pas: 0.1 },
-    MID: { pas: 0.4, dri: 0.3, sho: 0.1, def: 0.2 },
-    ATK: { sho: 0.5, pac: 0.2, dri: 0.2, phy: 0.1 }
+  // Calculate Overall (Simplified Weighted Average)
+  let ovr = 0
+  switch (position) {
+    case 'GK': ovr = (stats.defending * 0.5) + (stats.physical * 0.2) + (stats.passing * 0.1) + (stats.pace * 0.2); break
+    case 'CB': ovr = (stats.defending * 0.5) + (stats.physical * 0.3) + (stats.passing * 0.1) + (stats.pace * 0.1); break
+    case 'LB': 
+    case 'RB': ovr = (stats.defending * 0.3) + (stats.pace * 0.3) + (stats.passing * 0.2) + (stats.dribbling * 0.1); break
+    case 'CDM': ovr = (stats.defending * 0.4) + (stats.passing * 0.3) + (stats.physical * 0.2) + (stats.stamina * 0.1); break
+    case 'CM': ovr = (stats.passing * 0.3) + (stats.dribbling * 0.2) + (stats.defending * 0.2) + (stats.shooting * 0.1) + (stats.stamina * 0.2); break
+    case 'CAM': ovr = (stats.passing * 0.4) + (stats.dribbling * 0.3) + (stats.shooting * 0.2) + (stats.pace * 0.1); break
+    case 'LW':
+    case 'RW': ovr = (stats.pace * 0.4) + (stats.dribbling * 0.3) + (stats.shooting * 0.2) + (stats.passing * 0.1); break
+    case 'ST': ovr = (stats.shooting * 0.5) + (stats.physical * 0.2) + (stats.pace * 0.2) + (stats.dribbling * 0.1); break
+    default: ovr = 50
   }
 
-  const w = weights[position as keyof typeof weights] || weights.MID // default
-  
-  if (position === 'GK') {
-    stats.overall = Math.round(stats.defending * 0.8 + stats.physical * 0.1 + stats.passing * 0.1)
-  } else if (position === 'DEF') {
-    stats.overall = Math.round(stats.defending * 0.5 + stats.physical * 0.3 + stats.pace * 0.1 + stats.passing * 0.1)
-  } else if (position === 'MID') {
-    stats.overall = Math.round(stats.passing * 0.4 + stats.dribbling * 0.3 + stats.shooting * 0.1 + stats.defending * 0.2)
-  } else {
-    stats.overall = Math.round(stats.shooting * 0.5 + stats.pace * 0.2 + stats.dribbling * 0.2 + stats.physical * 0.1)
-  }
-
+  stats.overall = Math.round(ovr)
   return stats
 }

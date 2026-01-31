@@ -11,7 +11,7 @@ export interface Player {
   id: number
   clubId: number
   name: string
-  position: "GK" | "DEF" | "MID" | "ATK"
+  position: string // Updated to support FM roles (GK, CB, ST, etc)
   pace: number
   shooting: number
   passing: number
@@ -38,8 +38,12 @@ export const api = {
     const res = await API.get("/klub")
     return res.data
   },
-  createClub: async (data: { team: string }) => {
-    const res = await API.post("/klub/create", data)
+  createClub: async (data: any) => {
+    const res = await API.post("/club", data)
+    return res
+  },
+  getClubById: async (id: number) => {
+    const res = await API.get(`/club/${id}`)
     return res.data
   },
   inputScore: async (data: { ClubId: number; opponent_name: string; score: string }) => {
@@ -59,6 +63,10 @@ export const api = {
     const res = await API.post<Player & { country: string }>("/player/generate", data)
     return res.data
   },
+  generateSquad: async (data: { clubId: number, country?: string }) => {
+    const res = await API.post("/player/batch-generate", data)
+    return res.data
+  }
 }
 
 export { API }

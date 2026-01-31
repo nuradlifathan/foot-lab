@@ -1,7 +1,7 @@
 
 import { Route, Routes } from "react-router-dom"
 
-import CreateClub from "./components/CreateClub"
+import CreateClub from "./pages/CreateClub"
 import InputScoreForm from "./components/InputScore2"
 import ViewKlasemen from "./components/ViewKlasemen"
 import RealKlasemen from "./components/RealKlasemen"
@@ -13,6 +13,8 @@ import NotFound from "./pages/NotFound"
 import SquadView from "./pages/SquadView"
 import CreatePlayer from "./pages/CreatePlayer"
 import ProtectedRoute from "./components/ProtectedRoute"
+import ClubDashboardLayout from "./layouts/ClubDashboardLayout"
+import ClubOverview from "./pages/ClubOverview"
 
 const RoutePath = () => {
   return (
@@ -27,8 +29,16 @@ const RoutePath = () => {
           <Route path="/dashboard" element={<Homepage />} />
           <Route path="/view-klasemen" element={<ViewKlasemen />} />
           <Route path="/real-klasemen" element={<RealKlasemen />} />
-          <Route path="/squad/:clubId" element={<SquadView />} />
-          <Route path="/create-player/:clubId" element={<CreatePlayer />} />
+          
+          {/* Club Management Dashboard */}
+          <Route element={<ClubDashboardLayout />}>
+             <Route path="/dashboard/:clubId" element={<ClubOverview />} />
+             <Route path="/squad/:clubId" element={<SquadView />} />
+             <Route path="/create-player/:clubId" element={<CreatePlayer />} />
+             {/* Add placeholders for future routes */}
+             <Route path="/tactics/:clubId" element={<div className="p-4">Tactics Module Coming Soon</div>} />
+             <Route path="/fixtures/:clubId" element={<div className="p-4">Fixtures Module Coming Soon</div>} />
+          </Route>
         </Route>
 
         {/* Admin Only Routes */}

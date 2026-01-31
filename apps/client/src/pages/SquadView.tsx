@@ -5,6 +5,7 @@ import PlayerCard from "@/components/PlayerCard"
 import { Button } from "@/components/ui/button"
 import { UserPlus, ArrowLeft, Loader2 } from "lucide-react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 const SquadView = () => {
   const { clubId } = useParams()
@@ -48,12 +49,7 @@ const SquadView = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-6">
         <div>
-          <Link 
-            to="/view-klasemen" 
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Standings
-          </Link>
+          {/* Back link removed for dashboard layout */}
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -80,9 +76,30 @@ const SquadView = () => {
       {!players || players.length === 0 ? (
         <div className="text-center py-20 border rounded-lg bg-muted/20 border-dashed">
           <p className="text-muted-foreground mb-4">No players found in this squad.</p>
-          <Link to={`/create-player/${clubId}`}>
-            <Button variant="outline">Create First Player</Button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link to={`/create-player/${clubId}`}>
+               <Button variant="outline">Create First Player</Button>
+            </Link>
+            <Button 
+              variant="default" 
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={async () => {
+                if (!clubId) return
+                try {
+                  toast.loading("Scouting 25 players...")
+                  await api.generateSquad({ clubId: Number(clubId), country: 'EN' })
+                  toast.dismiss()
+                  toast.success("Squad recruited successfully! ⚽")
+                  window.location.reload() // Quick refresh to show players
+                } catch (e) {
+                  toast.dismiss()
+                  toast.error("Failed to recruit squad")
+                }
+              }}
+            >
+              🚀 Auto-Recruit Full Squad
+            </Button>
+          </div>
         </div>
       ) : (
         <motion.div 

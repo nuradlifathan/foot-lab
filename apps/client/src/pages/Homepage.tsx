@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Trophy, PlusCircle, BarChart3, Zap } from "lucide-react"
+import { Trophy, PlusCircle, BarChart3, Zap, Shield } from "lucide-react"
 import { motion } from "framer-motion"
 
 const Homepage = () => {
@@ -46,76 +46,103 @@ const Homepage = () => {
       </div>
 
       {/* Quick Actions */}
-      <motion.div 
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        variants={container}
-        initial="hidden"
-        animate="show"
-      >
-        <motion.div variants={item}>
-          <Link to="/create-club">
-            <Card className="hover:border-primary cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg h-full">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <PlusCircle className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Create Club</CardTitle>
-                  <CardDescription>Add a new team</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-        </motion.div>
+      {/* Main Content Grid */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        
+        {/* Career Section (Focus) */}
+        <div className="lg:col-span-2 space-y-6">
+           <h2 className="text-2xl font-bold flex items-center gap-2">
+             <Shield className="h-6 w-6 text-primary" />
+             Career Mode
+           </h2>
+           <motion.div 
+             variants={container}
+             initial="hidden"
+             animate="show"
+             className="grid gap-4 md:grid-cols-2"
+           >
+              <Link to="/create-club">
+                <Card className="h-full border-primary/50 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/20 hover:shadow-lg transition-all cursor-pointer group">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <PlusCircle className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+                      Create New Club
+                    </CardTitle>
+                    <CardDescription>Start your journey as a manager. Build your squad, tactic, and stadium.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">Start Career</Button>
+                  </CardContent>
+                </Card>
+              </Link>
 
-        <motion.div variants={item}>
-          <Link to="/input-match">
-            <Card className="hover:border-primary cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg h-full">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  <BarChart3 className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Input Match</CardTitle>
-                  <CardDescription>Record results</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-        </motion.div>
+              {/* Placeholder for Load Game or Recent Club could go here */}
+           </motion.div>
 
-        <motion.div variants={item}>
-          <Link to="/view-klasemen">
-            <Card className="hover:border-primary cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg h-full">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <div className="p-2 rounded-lg bg-yellow-500/10">
-                  <Trophy className="h-6 w-6 text-yellow-500" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">View Klasemen</CardTitle>
-                  <CardDescription>Custom league</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
-        </motion.div>
+           <h2 className="text-2xl font-bold flex items-center gap-2 mt-8">
+             <Trophy className="h-6 w-6 text-yellow-500" />
+             League Tools
+           </h2>
+           <div className="grid gap-4 md:grid-cols-2">
+              <Link to="/view-klasemen">
+                <Card className="hover:border-yellow-500/50 transition-all cursor-pointer hover:shadow-md">
+                   <CardHeader className="flex flex-row items-center gap-4 pb-2">
+                      <div className="p-2 rounded-lg bg-yellow-500/10">
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Custom League Standings</CardTitle>
+                      </div>
+                   </CardHeader>
+                   <CardContent>
+                     <p className="text-sm text-muted-foreground">View and manage standings for your custom tournaments.</p>
+                   </CardContent>
+                </Card>
+              </Link>
 
-        <motion.div variants={item}>
-          <Link to="/real-klasemen">
-            <Card className="hover:border-primary cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg h-full">
-              <CardHeader className="flex flex-row items-center gap-4">
-                <div className="p-2 rounded-lg bg-red-500/10">
-                  <Zap className="h-6 w-6 text-red-500" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Live Standings</CardTitle>
-                  <CardDescription>Premier League</CardDescription>
-                </div>
+              <Link to="/input-match">
+                <Card className="hover:border-green-500/50 transition-all cursor-pointer hover:shadow-md">
+                   <CardHeader className="flex flex-row items-center gap-4 pb-2">
+                      <div className="p-2 rounded-lg bg-green-500/10">
+                        <BarChart3 className="h-5 w-5 text-green-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base">Input Match Result</CardTitle>
+                      </div>
+                   </CardHeader>
+                   <CardContent>
+                     <p className="text-sm text-muted-foreground">Manually record scores for custom league matches.</p>
+                   </CardContent>
+                </Card>
+              </Link>
+           </div>
+        </div>
+
+        {/* Live Data Sidebar */}
+        <div className="space-y-6">
+           <h2 className="text-2xl font-bold flex items-center gap-2">
+             <Zap className="h-6 w-6 text-blue-500" />
+             Live Data
+           </h2>
+           <Card className="border-blue-500/20 bg-blue-500/5">
+              <CardHeader>
+                <CardTitle className="text-lg">Premier League Live</CardTitle>
+                <CardDescription>Real-time standings integration</CardDescription>
               </CardHeader>
-            </Card>
-          </Link>
-        </motion.div>
-      </motion.div>
+              <CardContent className="space-y-4">
+                 <p className="text-sm text-muted-foreground">
+                   Check the latest EPL table without leaving your dashboard.
+                 </p>
+                 <Link to="/real-klasemen">
+                   <Button variant="outline" className="w-full border-blue-500/50 hover:bg-blue-500/10 text-blue-500">
+                     Open Live Standings
+                   </Button>
+                 </Link>
+              </CardContent>
+           </Card>
+        </div>
+
+      </div>
 
       {/* Feature Highlight */}
       <motion.div

@@ -136,17 +136,31 @@ export default function Sidebar() {
   const location = useLocation()
 
   // Only show sidebar on these paths (and child paths)
-  const validPrefixes = [
-    "/dashboard",
-    "/create-club", 
-    "/input-match", 
-    "/view-klasemen", 
-    "/real-klasemen", 
-    "/squad", 
-    "/create-player"
-  ]
+  // Only show GLOBAL sidebar on these paths
+  // We want to HIDE this sidebar when inside the Club Dashboard (which has its own sidebar)
+  const shouldShowSidebar = (() => {
+    const p = location.pathname
+    
+    // Explicitly hide for Game Mode routes
+    // Note: /dashboard/:id is Game Mode, but /dashboard is Landing
+    // The previous logic startswith was too broad
+    if (p.includes("/squad/") || p.includes("/tactics/") || p.includes("/fixtures/") || p.includes("/create-player/")) return false
+    
+    // Special case for /dashboard: Show only if it's EXACTLY /dashboard (the hub)
+    // If it's /dashboard/123, hide it (Game Mode)
+    if (p.startsWith("/dashboard/")) return false
 
-  const shouldShowSidebar = validPrefixes.some(prefix => location.pathname.startsWith(prefix))
+    // Otherwise show for specific prefixes
+    const showPrefixes = [
+      "/dashboard", // Will match /dashboard but we filtered /dashboard/ above
+      "/create-club", 
+      "/input-match", 
+      "/view-klasemen", 
+      "/real-klasemen"
+    ]
+    
+    return showPrefixes.some(prefix => p.startsWith(prefix))
+  })()
 
   if (!shouldShowSidebar) return null
 

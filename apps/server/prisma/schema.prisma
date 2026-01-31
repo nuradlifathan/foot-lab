@@ -7,16 +7,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Club {
   id             Int     @id @default(autoincrement())
   team           String
-  main           Int     @default(0)
+  nickname       String?
+  city           String  @default("Unknown")
+  yearFounded    Int     @default(2024)
+  
+  // Infrastructure
+  stadiumName    String  @default("Municipal Stadium")
+  stadiumCap     Int     @default(5000)
+  
+  // Branding
+  primaryColor   String  @default("#000000")
+  secondaryColor String  @default("#ffffff")
+  
+  // Stats & Finance
+  balance        Float   @default(1000000)
   menang         Int     @default(0)
   seri           Int     @default(0)
   kalah          Int     @default(0)
   goal_masuk     Int     @default(0)
   goal_kemasukan Int     @default(0)
   point          Int     @default(0)
+  
+  // Tactics
+  formation      String  @default("4-4-2")
+
   matches        Match[]
   players        Player[]
 }
@@ -26,7 +44,8 @@ model Player {
   clubId    Int
   club      Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
   name      String
-  position  String // GK, DEF, MID, ATK
+  position  String // GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST
+  preferredFoot String @default("Right") // Left, Right, Both
 
   // Core Stats (1-100)
   pace      Int @default(50)
@@ -58,4 +77,13 @@ model User {
   role      String   @default("USER") // ADMIN, USER
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model NameAsset {
+  id        Int      @id @default(autoincrement())
+  type      String   // "FIRST" or "LAST"
+  country   String   // "EN", "ES", etc
+  value     String
+  
+  @@index([country, type])
 }
