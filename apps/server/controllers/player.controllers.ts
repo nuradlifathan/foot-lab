@@ -3,6 +3,57 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+import { NAMES_DB, CountryCode } from '../lib/generators/names'
+import { generateStats } from '../lib/generators/stats'
+
+
+
+// Helper random array item
+const randomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+
+// Generate Random Player
+export const generateRandomPlayer = async (c: Context) => {
+  try {
+    const { clubId, position, country } = await c.req.json()
+
+    if (!clubId || !position) {
+      return c.json({ error: 'Missing clubId or position' }, 400)
+    }
+
+    // 1. Resolve Country & Name
+    let selectedCountry: CountryCode = 'EN' // Default
+    if (country && NAMES_DB[country as CountryCode]) {
+      selectedCountry = country as CountryCode
+    } else {
+      // Pick random country if not specified
+      const countries = Object.keys(NAMES_DB) as CountryCode[]
+      selectedCountry = randomItem(countries)
+    }
+
+    const firstName = randomItem(NAMES_DB[selectedCountry].first)
+    const lastName = randomItem(NAMES_DB[selectedCountry].last)
+    const fullName = `${firstName} ${lastName}`
+
+    // 2. Generate Stats
+    const stats = generateStats(position)
+
+    // 3. Create Player in DB
+    const player = await prisma.player.create({
+      data: {
+        clubId: Number(clubId),
+        name: fullName,
+        position,
+        ...stats
+      }
+    })
+
+    return c.json({ ...player, country: selectedCountry })
+  } catch (err) {
+    console.error(err)
+    return c.json({ error: 'Failed to generate player' }, 500)
+  }
+}
+
 // Create a new player
 export const createPlayer = async (c: Context) => {
   try {

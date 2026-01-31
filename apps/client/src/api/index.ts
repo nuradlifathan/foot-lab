@@ -55,6 +55,10 @@ export const api = {
     const res = await API.post<Player>("/player/create", data)
     return res.data
   },
+  generatePlayer: async (data: { clubId: number, position: string, country?: string }) => {
+    const res = await API.post<Player & { country: string }>("/player/generate", data)
+    return res.data
+  },
 }
 
 export { API }
