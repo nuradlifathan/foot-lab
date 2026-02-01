@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Users, Trophy, ChevronRight, Zap, BarChart3, Star } from "lucide-react"
+import { LandingActions } from "@/components/LandingActions"
 import RealKlasemen from "@/components/RealKlasemen"
 
 const LandingPage = () => {
@@ -101,55 +102,7 @@ const LandingPage = () => {
              
              {/* Role Selection / Dashboard Button */}
              <motion.div variants={item} className="mt-12">
-               <Card className="max-w-md mx-auto border-primary/20 shadow-2xl bg-card/60 backdrop-blur-xl hover:shadow-primary/10 transition-shadow duration-500">
-                 <CardHeader>
-                   <CardTitle>{isAuthenticated ? `Welcome back, ${user?.name?.split(' ')[0]}!` : "Start Your Career"}</CardTitle>
-                   <CardDescription>{isAuthenticated ? "Continue where you left off" : "Select access level"}</CardDescription>
-                 </CardHeader>
-                 <CardContent className="space-y-4">
-                   {isAuthenticated ? (
-                     <Button 
-                       size="lg" 
-                       className="w-full h-14 text-lg relative overflow-hidden group"
-                       onClick={() => navigate('/dashboard')}
-                     >
-                       <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                       <div className="flex items-center gap-3">
-                         <Shield className="h-5 w-5" />
-                         Go to Dashboard
-                       </div>
-                       <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                     </Button>
-                   ) : (
-                     <>
-                       <Button 
-                         size="lg" 
-                         className="w-full justify-between group h-14 text-lg relative overflow-hidden" 
-                         onClick={() => handleLogin('admin')}
-                       >
-                         <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                         <div className="flex items-center gap-3">
-                           <Shield className="h-5 w-5" />
-                           Login as Admin
-                         </div>
-                         <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                       </Button>
-                       <Button 
-                         variant="outline" 
-                         size="lg" 
-                         className="w-full justify-between group h-14 text-lg hover:bg-secondary/50"
-                         onClick={() => handleLogin('user')}
-                       >
-                         <div className="flex items-center gap-3">
-                           <Users className="h-5 w-5" />
-                           Continue as User
-                         </div>
-                         <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                       </Button>
-                     </>
-                   )}
-                 </CardContent>
-               </Card>
+               <LandingActions isAuthenticated={isAuthenticated} user={user} />
              </motion.div>
            </motion.div>
         </section>

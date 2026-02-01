@@ -61,14 +61,14 @@ const Homepage = () => {
              animate="show"
              className="grid gap-4 md:grid-cols-2"
            >
-              <Link to="/create-club">
+              <Link to="/new-game">
                 <Card className="h-full border-primary/50 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/20 hover:shadow-lg transition-all cursor-pointer group">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
                       <PlusCircle className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
-                      Create New Club
+                      New Game
                     </CardTitle>
-                    <CardDescription>Start your journey as a manager. Build your squad, tactic, and stadium.</CardDescription>
+                    <CardDescription>Start a new managerial career with real clubs.</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Button className="w-full">Start Career</Button>
@@ -76,7 +76,18 @@ const Homepage = () => {
                 </Card>
               </Link>
 
-              {/* Placeholder for Load Game or Recent Club could go here */}
+              <Card className="h-full border-muted bg-card/50 hover:bg-card/80 transition-all cursor-not-allowed opacity-70">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                      <Shield className="h-6 w-6 text-muted-foreground" />
+                      Load Game
+                    </CardTitle>
+                    <CardDescription>Continue your existing save file.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full" disabled>No Saves Found</Button>
+                  </CardContent>
+              </Card>
            </motion.div>
 
            <h2 className="text-2xl font-bold flex items-center gap-2 mt-8">

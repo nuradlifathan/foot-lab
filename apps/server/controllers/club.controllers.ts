@@ -10,17 +10,17 @@ export const createClub = async (c: Context) => {
     const data = await c.req.json()
     
     // Basic validation
-    if (!data.team) {
-      return c.json({ error: 'Team name is required' }, 400)
+    if (!data.name) {
+      return c.json({ error: 'Club name is required' }, 400)
     }
 
     const club = await prisma.club.create({
       data: {
-        team: data.team,
-        nickname: data.nickname, // Create nickname logic or accept input?
+        name: data.name,
+        nickname: data.nickname, 
         city: data.city || 'Unknown',
         yearFounded: Number(data.yearFounded) || 2024,
-        stadiumName: data.stadiumName || `${data.team} Stadium`,
+        stadiumName: data.stadiumName || `${data.name} Stadium`,
         stadiumCap: Number(data.stadiumCap) || 5000,
         primaryColor: data.primaryColor || '#000000',
         secondaryColor: data.secondaryColor || '#ffffff',
@@ -64,8 +64,8 @@ export const getClubById = async (c: Context) => {
 export const getAllClubs = async (c: Context) => {
   try {
     const clubs = await prisma.club.findMany({
-      select: { id: true, team: true, city: true, primaryColor: true },
-      orderBy: { team: 'asc' }
+      select: { id: true, name: true, city: true, primaryColor: true },
+      orderBy: { name: 'asc' }
     })
     return c.json(clubs)
   } catch (err) {

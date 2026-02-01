@@ -66,7 +66,17 @@ export const api = {
   generateSquad: async (data: { clubId: number, country?: string }) => {
     const res = await API.post("/player/batch-generate", data)
     return res.data
-  }
+  },
+  // Game
+  getMyGames: async () => {
+    const res = await API.get("/game")
+    return res.data
+  },
+  // Generic
+  get: (url: string) => API.get(url),
+  post: (url: string, data: any) => API.post(url, data),
+  put: (url: string, data: any) => API.put(url, data),
+  delete: (url: string) => API.delete(url)
 }
 
 export { API }

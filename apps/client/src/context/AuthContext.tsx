@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react"
-import { api } from "../api"
+import { api, API } from "../api"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 
@@ -18,7 +18,6 @@ interface AuthContextType {
   login: (token: string, user: User) => void
   logout: () => void
   isAuthenticated: boolean
-  isAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -37,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const res = await api.getAuthMe(storedToken)
           setUser(res)
           setToken(storedToken)
+          API.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
         } catch (err) {
           console.error("Auth check failed", err)
           logout() // Invalid token
@@ -52,13 +52,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("token", newToken)
     setToken(newToken)
     setUser(newUser)
-    
+    // Set global header
+    API.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
   }
 
   const logout = () => {
     localStorage.removeItem("token")
     setToken(null)
     setUser(null)
+    delete API.defaults.headers.common['Authorization']
     toast.info("Logged out successfully")
   }
 
@@ -70,8 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading, 
         login, 
         logout,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === "ADMIN"
+        isAuthenticated: !!user
       }}
     >
       {children}

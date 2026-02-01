@@ -43,8 +43,8 @@ export const generateRandomPlayer = async (c: Context) => {
     // 3. Generate Stats
     const stats = generateStats(position)
     
-    // 4. Preferred Foot
-    const preferredFoot = generatePreferredFoot()
+    // 4. Preferred Foot (Note: Temporarily removed from DB schema, but kept in logic for future)
+    // const preferredFoot = generatePreferredFoot()
 
     // 5. Create Player in DB
     const player = await prisma.player.create({
@@ -52,7 +52,7 @@ export const generateRandomPlayer = async (c: Context) => {
         clubId: Number(clubId),
         name: fullName,
         position,
-        preferredFoot,
+        // preferredFoot, // Removed from schema
         ...stats
       }
     })
@@ -100,13 +100,13 @@ export const generateSquad = async (c: Context) => {
       
       const fullName = `${fm} ${lm}`
       const stats = generateStats(position)
-      const preferredFoot = generatePreferredFoot()
+      // const preferredFoot = generatePreferredFoot() // Removed from schema
 
       return {
         clubId: Number(clubId),
         name: fullName,
         position,
-        preferredFoot,
+        // preferredFoot,
         ...stats
       }
     })

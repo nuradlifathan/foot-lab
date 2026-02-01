@@ -9,7 +9,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_dont_use_in_prod'
 
 export const register = async (c: Context) => {
   try {
-    const { email, password, name, role } = await c.req.json()
+    const { email, password, name } = await c.req.json()
 
     if (!email || !password) {
       return c.json({ error: 'Email and password are required' }, 400)
@@ -30,7 +30,7 @@ export const register = async (c: Context) => {
         email,
         password: hashedPassword,
         name,
-        role: role || 'USER' // Default to USER
+        role: 'USER' // Always default to USER
       }
     })
 

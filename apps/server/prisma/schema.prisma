@@ -8,12 +8,76 @@ datasource db {
 }
 
 
+
+// --- CORE GAME SYSTEM ---
+
+model Game {
+  id            String   @id @default(uuid())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Save Meta
+  managerName   String
+  currentDate   DateTime @default(now())
+  
+  // The Club the user is managing in this save
+  // This must be a club that belongs to this game (gameId matches)
+  managedClubId Int?
+  
+  // Relations to Game-Specific Entities
+  clubs         Club[]
+  players       Player[]
+  contracts     Contract[]
+  fixtures      Fixture[]
+  transfers     Transfer[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// --- MASTER DATA & GAME ENTITIES ---
+
+model Country {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  code      String   // ISO code e.g. ENG, ESP
+  region    String   // Europe, Asia etc
+  flag      String?  // URL or emoji
+  
+  leagues   League[]
+  clubs     Club[]
+  players   Player[]
+}
+
+model League {
+  id        Int      @id @default(autoincrement())
+  name      String
+  tier      Int      @default(1)
+  countryId Int
+  country   Country  @relation(fields: [countryId], references: [id])
+  
+  clubs     Club[]
+}
+
 model Club {
   id             Int     @id @default(autoincrement())
-  team           String
+  
+  // Save Context (Nullable = Master Asset)
+  gameId         String?
+  game           Game?   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  // Associations
+  leagueId       Int?
+  league         League? @relation(fields: [leagueId], references: [id])
+  countryId      Int?
+  country        Country? @relation(fields: [countryId], references: [id])
+
+  // Identity
+  name           String
   nickname       String?
   city           String  @default("Unknown")
   yearFounded    Int     @default(2024)
+  logo           String?
   
   // Infrastructure
   stadiumName    String  @default("Municipal Stadium")
@@ -25,6 +89,9 @@ model Club {
   
   // Stats & Finance
   balance        Float   @default(1000000)
+  reputation     Int     @default(5000) // 1-10000
+  
+  // Season Stats (In-Game Only)
   menang         Int     @default(0)
   seri           Int     @default(0)
   kalah          Int     @default(0)
@@ -35,18 +102,39 @@ model Club {
   // Tactics
   formation      String  @default("4-4-2")
 
-  matches        Match[]
+  matches        Match[] // Legacy, consider refactoring to Fixture
+  homeFixtures   Fixture[] @relation("HomeFixtures")
+  awayFixtures   Fixture[] @relation("AwayFixtures")
+  
   players        Player[]
+  contracts      Contract[]
+  
+  fromTransfers  Transfer[] @relation("FromClub")
+  toTransfers    Transfer[] @relation("ToClub")
+  
+  // Make combination unique to avoid duplicates in same game
+  // But master data (gameId=null) can share names
+  // @@unique([name, gameId]) // Optional constraint
 }
 
 model Player {
   id        Int    @id @default(autoincrement())
-  clubId    Int
-  club      Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  
+  // Save Context
+  gameId    String?
+  game      Game?   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  clubId    Int?
+  club      Club?   @relation(fields: [clubId], references: [id])
+  
+  countryId Int?
+  country   Country? @relation(fields: [countryId], references: [id])
+  
   name      String
   position  String // GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST
-  preferredFoot String @default("Right") // Left, Right, Both
-
+  age       Int    @default(18)
+  dob       DateTime?
+  
   // Core Stats (1-100)
   pace      Int @default(50)
   shooting  Int @default(50)
@@ -56,11 +144,76 @@ model Player {
   physical  Int @default(50)
   stamina   Int @default(100)
   overall   Int @default(50)
+  potential Int @default(70)
+  
+  // Market
+  marketValue Float @default(0)
+  
+  contract   Contract? // One active contract
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+// --- ECONOMY & SYSTEMS ---
+
+model Contract {
+  id        Int      @id @default(autoincrement())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  playerId  Int      @unique
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  clubId    Int
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  
+  wage      Float    // Weekly wage
+  expiresAt DateTime
+  
+  createdAt DateTime @default(now())
+}
+
+model Transfer {
+  id        Int      @id @default(autoincrement())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  playerId  Int
+  // player    Player   @relation(fields: [playerId], references: [id]) // Loose relation to allow history
+  
+  fromClubId Int?
+  fromClub   Club?    @relation("FromClub", fields: [fromClubId], references: [id])
+  
+  toClubId   Int?
+  toClub     Club?    @relation("ToClub", fields: [toClubId], references: [id])
+  
+  fee        Float
+  date       DateTime @default(now())
+  status     String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+}
+
+model Fixture {
+  id        Int      @id @default(autoincrement())
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  
+  homeClubId Int
+  homeClub   Club    @relation("HomeFixtures", fields: [homeClubId], references: [id])
+  
+  awayClubId Int
+  awayClub   Club    @relation("AwayFixtures", fields: [awayClubId], references: [id])
+  
+  date       DateTime
+  played     Boolean @default(false)
+  
+  homeScore  Int?
+  awayScore  Int?
+  
+  // events     GameEvent[]
+}
+
+// Legacy Match model (Keeping for now or deprecating?)
 model Match {
   id            Int    @id @default(autoincrement())
   opponent_name String
@@ -75,6 +228,7 @@ model User {
   password  String
   name      String?
   role      String   @default("USER") // ADMIN, USER
+  games     Game[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -87,3 +241,5 @@ model NameAsset {
   
   @@index([country, type])
 }
+
+

@@ -15,6 +15,7 @@ import CreatePlayer from "./pages/CreatePlayer"
 import ProtectedRoute from "./components/ProtectedRoute"
 import ClubDashboardLayout from "./layouts/ClubDashboardLayout"
 import ClubOverview from "./pages/ClubOverview"
+import NewGame from "./pages/NewGame"
 
 const RoutePath = () => {
   return (
@@ -26,6 +27,7 @@ const RoutePath = () => {
         
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute />}>
+          <Route path="/new-game" element={<NewGame />} />
           <Route path="/dashboard" element={<Homepage />} />
           <Route path="/view-klasemen" element={<ViewKlasemen />} />
           <Route path="/real-klasemen" element={<RealKlasemen />} />
@@ -41,8 +43,8 @@ const RoutePath = () => {
           </Route>
         </Route>
 
-        {/* Admin Only Routes */}
-        <Route element={<ProtectedRoute requireAdmin={true} />}>
+        {/* Feature Routes (Accessible to all Managers) */}
+        <Route element={<ProtectedRoute />}>
           <Route path="/create-club" element={<CreateClub />} />
           <Route path="/input-match" element={<InputScoreForm />} />
         </Route>

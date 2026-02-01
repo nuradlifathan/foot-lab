@@ -14,7 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { RefreshCw, Clock, AlertCircle } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { RefreshCw, Clock, AlertCircle, ChevronRight } from "lucide-react"
+
+interface RealKlasemenProps {
+  previewMode?: boolean
+  sidebarMode?: boolean
+}
 
 interface Standing {
   position: number
@@ -54,7 +66,7 @@ const leagues = [
   { code: "WC", name: "World Cup", flag: "🌍", color: "from-green-600 to-blue-600" },
 ]
 
-const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
+const RealKlasemen = ({ previewMode = false, sidebarMode = false }: RealKlasemenProps) => {
   const [selectedLeague, setSelectedLeague] = useState(leagues[0])
   const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
   const [isRateLimited, setIsRateLimited] = useState(false)
@@ -95,7 +107,7 @@ const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
     },
     enabled: !isRateLimited,
     retry: false,
-    staleTime: 30000, // Cache data for 30 seconds to reduce API calls
+    staleTime: 30000, 
   })
 
   const handleLeagueChange = (league: typeof leagues[0]) => {
@@ -163,7 +175,7 @@ const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={cn("space-y-6", sidebarMode ? "p-3 space-y-3" : "p-6")}>
       {/* Rate Limit Warning */}
       {isRateLimited && (
         <Card className="border-yellow-500 bg-yellow-500/10 animate-fade-in">
@@ -174,17 +186,11 @@ const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-yellow-600 dark:text-yellow-400">
-                  Taking a short break ☕
+                  Counting Down
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  Too many requests. Please wait a moment before switching leagues.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {rateLimitCountdown}
+                <div className="text-sm text-yellow-600">
+                   {rateLimitCountdown}s until refresh
                 </div>
-                <div className="text-xs text-muted-foreground">seconds</div>
               </div>
             </div>
           </CardContent>
@@ -192,40 +198,66 @@ const RealKlasemen = ({ previewMode = false }: { previewMode?: boolean }) => {
       )}
 
       {/* League Selector */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-muted-foreground">Select League</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
-          {leagues.map((league) => (
-            <button
-              key={league.code}
-              onClick={() => handleLeagueChange(league)}
-              disabled={isRateLimited}
-              className={cn(
-                "relative group p-4 rounded-xl border-2 transition-all duration-300",
-                "hover:scale-105 hover:shadow-lg",
-                selectedLeague.code === league.code
-                  ? "border-primary bg-primary/10 shadow-md"
-                  : "border-border hover:border-primary/50",
-                isRateLimited && "opacity-50 cursor-not-allowed hover:scale-100"
-              )}
-            >
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-2xl">{league.flag}</span>
-                <span className="text-xs font-medium text-center leading-tight">
-                  {league.name}
-                </span>
-              </div>
-              {selectedLeague.code === league.code && (
-                <div className="absolute -top-1 -right-1">
-                  <Badge variant="success" className="text-[10px] px-1">
-                    ●
-                  </Badge>
+      {sidebarMode ? (
+        <Select 
+          value={selectedLeague.code} 
+          onValueChange={(val) => {
+             const found = leagues.find(l => l.code === val)
+             if (found && !isRateLimited) setSelectedLeague(found)
+          }}
+          disabled={isRateLimited}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue>
+               <span className="mr-2">{selectedLeague.flag}</span>
+               {selectedLeague.name}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {leagues.map(l => (
+              <SelectItem key={l.code} value={l.code}>
+                <span className="mr-2">{l.flag}</span>
+                {l.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-muted-foreground">Select League</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
+            {leagues.map((league) => (
+              <button
+                key={league.code}
+                onClick={() => handleLeagueChange(league)}
+                disabled={isRateLimited}
+                className={cn(
+                  "relative group p-4 rounded-xl border-2 transition-all duration-300",
+                  "hover:scale-105 hover:shadow-lg",
+                  selectedLeague.code === league.code
+                    ? "border-primary bg-primary/10 shadow-md"
+                    : "border-border hover:border-primary/50",
+                  isRateLimited && "opacity-50 cursor-not-allowed hover:scale-100"
+                )}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-2xl">{league.flag}</span>
+                  <span className="text-xs font-medium text-center leading-tight">
+                    {league.name}
+                  </span>
                 </div>
-              )}
-            </button>
-          ))}
+                {selectedLeague.code === league.code && (
+                  <div className="absolute -top-1 -right-1">
+                    <Badge variant="success" className="text-[10px] px-1">
+                      ●
+                    </Badge>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Header */}
       <Card className={cn(

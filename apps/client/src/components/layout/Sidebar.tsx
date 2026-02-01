@@ -22,7 +22,6 @@ const navItems = [
   { path: "/create-club", icon: PlusCircle, label: "Create Club" },
   { path: "/input-match", icon: BarChart3, label: "Input Match" },
   { path: "/view-klasemen", icon: Trophy, label: "View Klasemen" },
-  { path: "/real-klasemen", icon: Trophy, label: "Live Standings" },
 ]
 
 interface SidebarContentProps {
@@ -38,15 +37,10 @@ import { useAuth } from "@/context/AuthContext"
 const SidebarContent = ({ collapsed, mobile, onItemClick }: SidebarContentProps) => {
   const { theme, setTheme } = useTheme()
   const location = useLocation()
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout } = useAuth()
 
-  // Filter nav items based on role
-  const filteredNavItems = navItems.filter(item => {
-    if (item.path === "/create-club" || item.path === "/input-match") {
-      return isAdmin
-    }
-    return true
-  })
+  // Filter nav items based on role (Previously admin check, now all accessible)
+  const filteredNavItems = navItems
 
   return (
     <div className="flex h-full flex-col">
@@ -156,7 +150,6 @@ export default function Sidebar() {
       "/create-club", 
       "/input-match", 
       "/view-klasemen", 
-      "/real-klasemen"
     ]
     
     return showPrefixes.some(prefix => p.startsWith(prefix))
