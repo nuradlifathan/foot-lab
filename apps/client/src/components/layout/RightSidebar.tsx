@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChevronRight, ChevronLeft, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import RealKlasemen from "@/components/RealKlasemen"
+import LiveStandings from "@/components/LiveStandings"
 
 export default function RightSidebar() {
   const [collapsed, setCollapsed] = useState(false)
@@ -29,7 +29,7 @@ export default function RightSidebar() {
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                {/* We use sidebarMode for compact dropdown but full list */}
-               <RealKlasemen sidebarMode />
+               <LiveStandings sidebarMode />
             </div>
           </motion.aside>
         )}

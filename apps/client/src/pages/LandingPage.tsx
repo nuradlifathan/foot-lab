@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, Users, Trophy, ChevronRight, Zap, BarChart3, Star } from "lucide-react"
 import { LandingActions } from "@/components/LandingActions"
-import RealKlasemen from "@/components/RealKlasemen"
+import LiveStandings from "@/components/LiveStandings"
 
 const LandingPage = () => {
   const navigate = useNavigate()
@@ -162,7 +162,7 @@ const LandingPage = () => {
                       <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
                       
                       <Card className="glass border-primary/20 bg-gradient-to-br from-card/80 to-primary/5 p-6 shadow-2xl relative z-10 transition-transform duration-500 hover:scale-[1.02]">
-                        <RealKlasemen previewMode />
+                        <LiveStandings previewMode />
                       </Card>
                    </div>
                 </div>

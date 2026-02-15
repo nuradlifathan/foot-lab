@@ -1,5 +1,5 @@
 
-interface PlayerStats {
+export interface PlayerStats {
   pace: number
   shooting: number
   passing: number

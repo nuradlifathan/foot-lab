@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useQuery } from "@tanstack/react-query"
+import { GameSystemModal } from "@/components/GameSystemModal"
 
 export default function ClubDashboardLayout() {
   const { clubId } = useParams()
@@ -36,7 +37,7 @@ export default function ClubDashboardLayout() {
     { name: "Squad", icon: Users, path: `/squad/${clubId}` },
     { name: "Tactics", icon: Shield, path: `/tactics/${clubId}` },
     { name: "Fixtures", icon: CalendarDays, path: `/fixtures/${clubId}` },
-    { name: "Standings", icon: Trophy, path: "/view-klasemen" },
+    { name: "Standings", icon: Trophy, path: `/dashboard/${clubId}/standings` },
   ]
 
   if (isLoading) {
@@ -105,10 +106,12 @@ export default function ClubDashboardLayout() {
         </nav>
 
         <div className="p-4 border-t">
-          <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => navigate('/dashboard')}>
-             <LogOut className="w-4 h-4 mr-2" />
-             Exit Game
-          </Button>
+          <GameSystemModal>
+             <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
+                <Settings className="w-4 h-4 mr-2" />
+                Game System
+             </Button>
+          </GameSystemModal>
         </div>
       </aside>
 

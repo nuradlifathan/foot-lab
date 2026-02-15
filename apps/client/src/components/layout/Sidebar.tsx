@@ -18,10 +18,8 @@ import {
 } from "lucide-react"
 
 const navItems = [
-  { path: "/", icon: Home, label: "Dashboard" },
-  { path: "/create-club", icon: PlusCircle, label: "Create Club" },
-  { path: "/input-match", icon: BarChart3, label: "Input Match" },
-  { path: "/view-klasemen", icon: Trophy, label: "View Klasemen" },
+  { path: "/dashboard", icon: Home, label: "Main Menu" },
+  { path: "/view-klasemen", icon: Trophy, label: "Global Standings" },
 ]
 
 interface SidebarContentProps {

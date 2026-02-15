@@ -1,10 +1,10 @@
 
 import { Route, Routes } from "react-router-dom"
 
-import CreateClub from "./pages/CreateClub"
-import InputScoreForm from "./components/InputScore2"
-import ViewKlasemen from "./components/ViewKlasemen"
-import RealKlasemen from "./components/RealKlasemen"
+// import CreateClub from "./pages/CreateClub"
+// import InputScoreForm from "./components/InputScore2"
+import StandingsView from "./components/StandingsView"
+import LiveStandings from "./components/LiveStandings"
 import Homepage from "./pages/Homepage"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/auth/LoginPage"
@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import ClubDashboardLayout from "./layouts/ClubDashboardLayout"
 import ClubOverview from "./pages/ClubOverview"
 import NewGame from "./pages/NewGame"
+import TacticsView from "./components/TacticsView"
 
 const RoutePath = () => {
   return (
@@ -29,8 +30,8 @@ const RoutePath = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/new-game" element={<NewGame />} />
           <Route path="/dashboard" element={<Homepage />} />
-          <Route path="/view-klasemen" element={<ViewKlasemen />} />
-          <Route path="/real-klasemen" element={<RealKlasemen />} />
+          <Route path="/view-klasemen" element={<StandingsView />} />
+          <Route path="/real-klasemen" element={<LiveStandings />} />
           
           {/* Club Management Dashboard */}
           <Route element={<ClubDashboardLayout />}>
@@ -38,16 +39,16 @@ const RoutePath = () => {
              <Route path="/squad/:clubId" element={<SquadView />} />
              <Route path="/create-player/:clubId" element={<CreatePlayer />} />
              {/* Add placeholders for future routes */}
-             <Route path="/tactics/:clubId" element={<div className="p-4">Tactics Module Coming Soon</div>} />
+             <Route path="/tactics/:clubId" element={<TacticsView />} />
              <Route path="/fixtures/:clubId" element={<div className="p-4">Fixtures Module Coming Soon</div>} />
+             <Route path="/dashboard/:clubId/standings" element={<StandingsView />} />
           </Route>
         </Route>
 
         {/* Feature Routes (Accessible to all Managers) */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/create-club" element={<CreateClub />} />
-          <Route path="/input-match" element={<InputScoreForm />} />
-        </Route>
+        {/* <Route element={<ProtectedRoute />}>
+          // Legacy Admin Routes Removed
+        </Route> */}
         
         {/* 404 Catch-all */}
         <Route path="*" element={<NotFound />} />

@@ -55,6 +55,7 @@ model League {
   tier      Int      @default(1)
   countryId Int
   country   Country  @relation(fields: [countryId], references: [id])
+  logo      String?  // URL to league logo
   
   clubs     Club[]
 }
@@ -132,6 +133,7 @@ model Player {
   
   name      String
   position  String // GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST
+  lineupPos String? // Current participation in tactics (GK, CB_L, SUB_1, RES, etc.)
   age       Int    @default(18)
   dob       DateTime?
   

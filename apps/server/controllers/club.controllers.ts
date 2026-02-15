@@ -64,12 +64,73 @@ export const getClubById = async (c: Context) => {
 export const getAllClubs = async (c: Context) => {
   try {
     const clubs = await prisma.club.findMany({
-      select: { id: true, name: true, city: true, primaryColor: true },
+      where: { gameId: null }, // Only fetch Master Data (Real Clubs)
+      select: { 
+        id: true, 
+        name: true, 
+        city: true, 
+        primaryColor: true, 
+        secondaryColor: true, 
+        logo: true,
+        leagueId: true 
+      },
       orderBy: { name: 'asc' }
     })
     return c.json(clubs)
   } catch (err) {
     console.error(err)
     return c.json({ error: 'Failed to fetch clubs' }, 500)
+  }
+}
+// Get Leagues with Country info
+export const getLeagues = async (c: Context) => {
+  try {
+    const leagues = await prisma.league.findMany({
+      include: { country: true },
+      orderBy: { tier: 'asc' }
+    })
+    return c.json(leagues)
+  } catch (err) {
+    console.error(err)
+    return c.json({ error: 'Failed to fetch leagues' }, 500)
+  }
+}
+// Update Tactics (Formation & Lineup)
+export const updateTactics = async (c: Context) => {
+  try {
+    const clubId = Number(c.req.param('id'))
+    const { formation, lineup } = await c.req.json() // lineup: { playerId: number, lineupPos: string }[]
+
+    if (isNaN(clubId)) return c.json({ error: 'Invalid Club ID' }, 400)
+
+    // 1. Update Club Formation
+    if (formation) {
+      await prisma.club.update({
+        where: { id: clubId },
+        data: { formation }
+      })
+    }
+
+    // 2. Update Players Lineup (Bulk)
+    if (lineup && Array.isArray(lineup)) {
+      // First, reset all players in this club to bench (or null) if we want strict control?
+      // Better: Just update the ones sent.
+      // But how to handle players moved TO bench? They should have lineupPos: null
+      
+      // Transaction to ensure consistency
+      await prisma.$transaction(
+        lineup.map((p: any) => 
+          prisma.player.update({
+            where: { id: p.playerId },
+            data: { lineupPos: p.lineupPos }
+          })
+        )
+      )
+    }
+
+    return c.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    return c.json({ error: 'Failed to update tactics' }, 500)
   }
 }

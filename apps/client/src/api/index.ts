@@ -30,12 +30,16 @@ export const api = {
   getAuthMe: (token: string) => API.get("/auth/me", {
     headers: { Authorization: `Bearer ${token}` }
   }).then(res => res.data),
-  getKlasemen: async () => {
-    const res = await API.get("/klub/klasemen")
+  getKlasemen: async (clubId?: number) => {
+    const res = await API.get("/klub/klasemen", { params: { clubId } })
     return res.data
   },
   getAllClubs: async () => {
-    const res = await API.get("/klub")
+    const res = await API.get("/club?_t=" + Date.now())
+    return res.data
+  },
+  getLeagues: async () => {
+    const res = await API.get("/club/leagues")
     return res.data
   },
   createClub: async (data: any) => {
@@ -55,6 +59,13 @@ export const api = {
     const res = await API.get<Player[]>(`/player/club/${clubId}`)
     return res.data
   },
+  getClubPlayers: async (clubId: number | string) => {
+    return api.getPlayersByClub(clubId)
+  },
+  updateTactics: async (clubId: number | string, data: { formation: string, lineup: { playerId: number, lineupPos: string | null }[] }) => {
+    const res = await API.put(`/club/${clubId}/tactics`, data)
+    return res.data
+  },
   createPlayer: async (data: Omit<Player, "id">) => {
     const res = await API.post<Player>("/player/create", data)
     return res.data
@@ -70,6 +81,10 @@ export const api = {
   // Game
   getMyGames: async () => {
     const res = await API.get("/game")
+    return res.data
+  },
+  saveGame: async (gameId: string) => {
+    const res = await API.put(`/game/${gameId}/save`, {})
     return res.data
   },
   // Generic

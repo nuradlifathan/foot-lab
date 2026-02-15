@@ -13,6 +13,16 @@ export const createGame = async (c: Context) => {
     if (!userId) return c.json({ error: 'Unauthorized' }, 401)
     if (!managerName || !clubId) return c.json({ error: 'Manager name and Club are required' }, 400)
 
+    // Validate if the Club ID exists in Master Data first
+    const targetMasterClub = await prisma.club.findUnique({
+      where: { id: Number(clubId) }
+    })
+    
+    if (!targetMasterClub || targetMasterClub.gameId !== null) {
+      console.warn(`❌ Rejected Invalid Club Creation. User sent ID: ${clubId}. Master Found: ${targetMasterClub?.id} (GameId: ${targetMasterClub?.gameId})`)
+      return c.json({ error: `Selected Club (ID: ${clubId}) is invalid or outdated. Hard Refresh to fix.` }, 400)
+    }
+
     console.log(`🎮 Creating new save for user ${userId} managing club ${clubId}...`)
 
     // 1. Create Game Record
@@ -170,6 +180,31 @@ export const getMyGames = async (c: Context) => {
 }
 
 // Get Single Game State (Load Game)
+// Save Game (Update Last Played)
+export const saveGame = async (c: Context) => {
+  try {
+    const gameId = c.req.param('id')
+    const userId = c.get('jwtPayload')?.id
+    
+    // Authorization check
+    const game = await prisma.game.findFirst({
+        where: { id: gameId, userId }
+    })
+    
+    if (!game) return c.json({ error: 'Game not found or unauthorized' }, 404)
+
+    await prisma.game.update({
+        where: { id: gameId },
+        data: { updatedAt: new Date() } // Just touch the timestamp
+    })
+
+    return c.json({ message: 'Game Saved Successfully', savedAt: new Date() })
+  } catch (err) {
+    console.error(err)
+    return c.json({ error: 'Failed to save game' }, 500)
+  }
+}
+
 export const loadGame = async (c: Context) => {
     // Return game meta
     return c.json({ message: 'Load logic here' })
