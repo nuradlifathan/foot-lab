@@ -53,7 +53,7 @@ const NewGame = () => {
     onSuccess: (data) => {
       // Redirect to the Club Dashboard directly
       if (data.managedClubId) {
-        navigate(`/dashboard/${data.managedClubId}`)
+        navigate(`/dashboard/${data.managedClubId}/overview`)
       } else {
         navigate('/dashboard')
       }

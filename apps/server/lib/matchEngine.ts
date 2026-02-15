@@ -78,11 +78,51 @@ export const simulateMatch = async (homeId: number, awayId: number) => {
   const homeChances = baseChances + (midfieldDiff / 2) // e.g. +5 strength = +2.5 chances
   const awayChances = baseChances - (midfieldDiff / 2)
 
-  // 2. Scoring Calculation
-  // Home Attack vs Away Defense
+// 3. Tactical Advantage (Rock-Paper-Scissors)
+  const getTacticalMultiplier = (myFormation: string, oppFormation: string) => {
+      // Basic simplified logic
+      // 4-3-3 (Attack) beats 4-4-2 (Balanced) -> Overwhelms midfield
+      // 4-4-2 (Balanced) beats 3-5-2 (Wide) -> Exploits wings with stability
+      // 3-5-2 (Wide) beats 4-3-3 (Attack) -> Congests midfield against 3
+      // 5-3-2 (Defense) counters Attackers
+      
+      const strategies: Record<string, string[]> = {
+          '4-3-3': ['4-4-2', '4-2-3-1'],      // Width & Attack beats Standard
+          '4-4-2': ['3-5-2', '5-3-2'],        // Structure beats Exotic
+          '3-5-2': ['4-3-3', '3-4-3'],        // Midfield overload beats Wingers
+          '4-2-3-1': ['4-4-2', '5-4-1'],      // CAM playmaker exploit
+          '5-3-2': ['4-3-3', '3-4-3'],        // Defense counters heavy attack via counters
+      }
+
+      const myPredator = strategies[myFormation] || []
+      const iAmPrey = strategies[oppFormation] || []
+
+      if (myPredator.includes(oppFormation)) return 1.15 // 15% Bonus
+      if (iAmPrey.includes(myFormation)) return 0.90 // 10% Penalty
+      return 1.0 // Neutral
+  }
+
+  // Fetch formations (assuming they are in the database club model, passed or fetched)
+  // For now, let's fetch them since we only have IDs
+  const homeClub = await prisma.club.findUnique({ where: { id: homeId }, select: { formation: true } })
+  const awayClub = await prisma.club.findUnique({ where: { id: awayId }, select: { formation: true } })
+  
+  const homeFormation = homeClub?.formation || '4-4-2'
+  const awayFormation = awayClub?.formation || '4-4-2'
+
+  const matchEvents: string[] = []
+
+  const homeTacticalMult = getTacticalMultiplier(homeFormation, awayFormation)
+  const awayTacticalMult = getTacticalMultiplier(awayFormation, homeFormation)
+  
+  if (homeTacticalMult > 1) matchEvents.push(`0' TACTICS: Home team's ${homeFormation} looks effective against ${awayFormation}!`)
+  if (awayTacticalMult > 1) matchEvents.push(`0' TACTICS: Away team's ${awayFormation} is exposing holes in the home defense!`)
+
+  // 4. Scoring Calculation
+  // Home Attack vs Away Defense (With Tactical Modifiers)
   const homeAdvantage = 1.1 // Home team buff
-  const homeAttackPower = (homeStats.attack * homeAdvantage) - awayStats.defense
-  const awayAttackPower = awayStats.attack - (homeStats.defense * homeAdvantage) // Home defense also buffed? usually home adv is overall
+  const homeAttackPower = (homeStats.attack * homeAdvantage * homeTacticalMult) - awayStats.defense
+  const awayAttackPower = (awayStats.attack * awayTacticalMult) - (homeStats.defense * homeAdvantage) 
   
   // Scoring probability per chance base 15%
   // Power diff of +10 increases conversion by 5%
@@ -95,13 +135,14 @@ export const simulateMatch = async (homeId: number, awayId: number) => {
 
   let homeScore = 0
   let awayScore = 0
-  const matchEvents: string[] = []
+  // const matchEvents: string[] = [] // Moved up
 
   // Simulate Home Chances
   for (let i = 0; i < Math.floor(homeChances); i++) {
      if (Math.random() < getConversionRate(homeAttackPower)) {
         homeScore++
         const minute = Math.floor(Math.random() * 90) + 1
+        // Random Scorer (Simplified)
         matchEvents.push(`${minute}' GOAL! Home Team scores.`)
      }
   }

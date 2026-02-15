@@ -1,5 +1,5 @@
 
-import { Route, Routes } from "react-router-dom"
+import { Route, Routes, Navigate } from "react-router-dom"
 
 // import CreateClub from "./pages/CreateClub"
 // import InputScoreForm from "./components/InputScore2"
@@ -35,12 +35,12 @@ const RoutePath = () => {
           
           {/* Club Management Dashboard */}
           <Route element={<ClubDashboardLayout />}>
-             <Route path="/dashboard/:clubId" element={<ClubOverview />} />
-             <Route path="/squad/:clubId" element={<SquadView />} />
-             <Route path="/create-player/:clubId" element={<CreatePlayer />} />
-             {/* Add placeholders for future routes */}
-             <Route path="/tactics/:clubId" element={<TacticsView />} />
-             <Route path="/fixtures/:clubId" element={<div className="p-4">Fixtures Module Coming Soon</div>} />
+             <Route path="/dashboard/:clubId" element={<Navigate to="overview" replace />} />
+             <Route path="/dashboard/:clubId/overview" element={<ClubOverview />} />
+             <Route path="/dashboard/:clubId/squad" element={<SquadView />} />
+             <Route path="/dashboard/:clubId/create-player" element={<CreatePlayer />} />
+             <Route path="/dashboard/:clubId/tactics" element={<TacticsView />} />
+             <Route path="/dashboard/:clubId/fixtures" element={<div className="p-4">Fixtures Module Coming Soon</div>} />
              <Route path="/dashboard/:clubId/standings" element={<StandingsView />} />
           </Route>
         </Route>

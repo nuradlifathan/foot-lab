@@ -53,6 +53,12 @@ export const login = async (c: Context) => {
     }
 
     // Find user
+    console.log('DEBUG: Attempting to find user', email)
+    console.log('DEBUG: Prisma User model:', !!prisma.user)
+    if (!prisma.user) {
+        console.error('CRITICAL: prisma.user is undefined!')
+        console.log('Prisma keys:', Object.keys(prisma))
+    }
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
       return c.json({ error: 'Invalid credentials' }, 401)

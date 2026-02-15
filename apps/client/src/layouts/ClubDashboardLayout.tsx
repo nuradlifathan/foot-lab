@@ -33,10 +33,10 @@ export default function ClubDashboardLayout() {
   })
 
   const sidebarLinks = [
-    { name: "Overview", icon: LayoutDashboard, path: `/dashboard/${clubId}` },
-    { name: "Squad", icon: Users, path: `/squad/${clubId}` },
-    { name: "Tactics", icon: Shield, path: `/tactics/${clubId}` },
-    { name: "Fixtures", icon: CalendarDays, path: `/fixtures/${clubId}` },
+    { name: "Overview", icon: LayoutDashboard, path: `/dashboard/${clubId}/overview` },
+    { name: "Squad", icon: Users, path: `/dashboard/${clubId}/squad` },
+    { name: "Tactics", icon: Shield, path: `/dashboard/${clubId}/tactics` },
+    { name: "Fixtures", icon: CalendarDays, path: `/dashboard/${clubId}/fixtures` },
     { name: "Standings", icon: Trophy, path: `/dashboard/${clubId}/standings` },
   ]
 
@@ -80,7 +80,7 @@ export default function ClubDashboardLayout() {
         >
           <div className="font-black text-lg truncate flex items-center gap-2">
             <Shield className="w-5 h-5" fill="currentColor" />
-            <span className="truncate">{club?.team || "My Club"}</span>
+            <span className="truncate">{club?.name || "My Club"}</span>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ export default function ClubDashboardLayout() {
         </nav>
 
         <div className="p-4 border-t">
-          <GameSystemModal>
+          <GameSystemModal gameId={club?.gameId}>
              <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
                 <Settings className="w-4 h-4 mr-2" />
                 Game System

@@ -49,8 +49,17 @@ function timeAgo(dateParam: string | Date) {
   return `${years} years ago`;
 }
 
-export const GameSystemModal = ({ children }: GameSystemModalProps) => {
-  const { gameId } = useParams()
+interface GameSystemModalProps {
+  children: React.ReactNode
+  gameId?: string
+}
+
+// ... timeAgo function ...
+
+export const GameSystemModal = ({ children, gameId: propGameId }: GameSystemModalProps) => {
+  const { gameId: paramGameId } = useParams()
+  const gameId = propGameId || paramGameId // Prioritize prop, fallback to param
+  
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -86,13 +95,13 @@ export const GameSystemModal = ({ children }: GameSystemModalProps) => {
       setOpen(false)
       // Navigate to dashboard of that game
       // Force reload to clear any state from previous game
-      window.location.href = `/dashboard/${targetGameId}`
+      window.location.href = `/dashboard/${targetGameId}/overview`
     }
   }
 
   // Handle Exit
   const handleExit = () => {
-    navigate('/')
+    navigate('/dashboard')
   }
 
   return (

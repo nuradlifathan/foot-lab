@@ -1,8 +1,29 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Trophy, PlusCircle, BarChart3, Zap, Shield } from "lucide-react"
+import { Trophy, PlusCircle, BarChart3, Zap, Shield, Loader2, User, Calendar, Download, Trash2 } from "lucide-react"
 import { motion } from "framer-motion"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { api } from "@/api"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const Homepage = () => {
   const container = {
@@ -19,6 +40,13 @@ const Homepage = () => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   }
+
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { data: games, isLoading: isLoadingGames } = useQuery({
+    queryKey: ['my-games'],
+    queryFn: api.getMyGames
+  })
 
   return (
     <div className="p-6 space-y-8">
@@ -61,7 +89,7 @@ const Homepage = () => {
              animate="show"
              className="grid gap-4 md:grid-cols-2"
            >
-              <Link to="/new-game">
+            <Link to="/new-game">
                 <Card className="h-full border-primary/50 bg-gradient-to-br from-card to-primary/5 hover:shadow-primary/20 hover:shadow-lg transition-all cursor-pointer group">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-xl">
@@ -76,18 +104,120 @@ const Homepage = () => {
                 </Card>
               </Link>
 
-              <Card className="h-full border-muted bg-card/50 hover:bg-card/80 transition-all cursor-not-allowed opacity-70">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-xl">
-                      <Shield className="h-6 w-6 text-muted-foreground" />
-                      Load Game
-                    </CardTitle>
-                    <CardDescription>Continue your existing save file.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button variant="outline" className="w-full" disabled>No Saves Found</Button>
-                  </CardContent>
-              </Card>
+              {/* Load Game with Dialog */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Card className="h-full border-muted bg-card/50 hover:bg-card/80 transition-all cursor-pointer hover:border-primary/50 group">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-xl">
+                          <Shield className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                          Load Game
+                        </CardTitle>
+                        <CardDescription>Continue your existing save file.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button variant="outline" className="w-full">
+                           {isLoadingGames ? "Loading..." : `${games?.length || 0} Saves Found`}
+                        </Button>
+                      </CardContent>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Load Saved Game</DialogTitle>
+                    <DialogDescription>Select a save file to continue your journey.</DialogDescription>
+                  </DialogHeader>
+                  <div className="h-[400px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                      {isLoadingGames ? (
+                          <div className="flex justify-center py-10">
+                              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                          </div>
+                      ) : games?.length === 0 ? (
+                          <div className="text-center py-10 space-y-4">
+                             <p className="text-muted-foreground">No saved games found.</p>
+                             <Button onClick={() => navigate('/new-game')}>Start New Game</Button>
+                          </div>
+                      ) : (
+                          games?.map((game: any) => (
+                              <Card 
+                                  key={game.id} 
+                                  className="cursor-pointer transition-all hover:border-primary/50 hover:bg-muted/50"
+                                  onClick={() => {
+                                      if (game.managedClubId) {
+                                          window.location.href = `/dashboard/${game.managedClubId}/overview`
+                                      } else {
+                                          // Fallback for unemployed or error state?
+                                          // For now, let's assume they have a club or handle it elsewhere
+                                          console.error("No managed club ID found for game", game.id)
+                                          alert("Error: This save file seems to be missing a club assignment.")
+                                      }
+                                  }}
+                              >
+                                  <CardContent className="p-4 flex items-center justify-between group/card">
+                                      <div className="space-y-1">
+                                          <div className="flex items-center gap-2">
+                                              <User className="h-4 w-4 text-muted-foreground" />
+                                              <span className="font-bold">{game.managerName}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                              <Shield className="h-3 w-3" />
+                                              <span>{game.clubName || "Unemployed"}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              <Calendar className="h-3 w-3" />
+                                              <span>
+                                                Last played: {new Date(game.updatedAt).toLocaleDateString()} at {new Date(game.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                                              </span>
+                                          </div>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="text-destructive opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-destructive/10"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                              <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete the save file 
+                                                <span className="font-bold text-foreground"> "{game.managerName} - {game.clubName || "Unemployed"}" </span>
+                                                and remove all associated data from the database.
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                              <AlertDialogAction 
+                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                onClick={() => {
+                                                    api.deleteGame(game.id).then(() => {
+                                                        queryClient.invalidateQueries({ queryKey: ['my-games'] })
+                                                    })
+                                                }}
+                                              >
+                                                Delete Permanently
+                                              </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+
+                                        <Button variant="ghost" size="icon">
+                                            <Download className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                  </CardContent>
+                              </Card>
+                          ))
+                      )}
+                  </div>
+                </DialogContent>
+              </Dialog>
            </motion.div>
 
            <h2 className="text-2xl font-bold flex items-center gap-2 mt-8">

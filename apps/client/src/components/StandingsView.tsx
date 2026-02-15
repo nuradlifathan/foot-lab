@@ -162,9 +162,22 @@ const ViewKlasemen = () => {
                   </TableCell>
                   <TableCell>
                       <div className="flex items-center gap-4">
-                          {/* Fallback Icon for now since we don't have Logo URL in KlasemenItem interface yet */}
-                          {/* Ideally we should update the API to return logo */}
-                          <div className="w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-lg shadow-sm border">
+                          {club.logo ? (
+                              <img 
+                                src={club.logo} 
+                                alt={club.klub} 
+                                className="w-10 h-10 object-contain drop-shadow-sm" 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                }}
+                              />
+                          ) : null}
+                          {/* Fallback Icon */}
+                          <div className={cn(
+                              "w-10 h-10 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center font-bold text-lg shadow-sm border",
+                              club.logo ? "hidden" : ""
+                          )}>
                               {club.klub.substring(0, 1)}
                           </div>
                           <div>

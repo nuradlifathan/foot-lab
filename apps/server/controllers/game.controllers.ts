@@ -209,3 +209,28 @@ export const loadGame = async (c: Context) => {
     // Return game meta
     return c.json({ message: 'Load logic here' })
 }
+
+// Delete Game (Hard Delete)
+export const deleteGame = async (c: Context) => {
+    try {
+        const gameId = c.req.param('id')
+        const userId = c.get('jwtPayload')?.id
+        
+        // Authorization check
+        const game = await prisma.game.findFirst({
+            where: { id: gameId, userId }
+        })
+        
+        if (!game) return c.json({ error: 'Game not found or unauthorized' }, 404)
+    
+        // Hard Delete (Cascade will handle related data)
+        await prisma.game.delete({
+            where: { id: gameId }
+        })
+    
+        return c.json({ message: 'Game Deleted Successfully' })
+    } catch (err) {
+        console.error(err)
+        return c.json({ error: 'Failed to delete game' }, 500)
+    }
+}

@@ -87,6 +87,10 @@ export const api = {
     const res = await API.put(`/game/${gameId}/save`, {})
     return res.data
   },
+  deleteGame: async (gameId: string) => {
+    const res = await API.delete(`/game/${gameId}`)
+    return res.data
+  },
   // Generic
   get: (url: string) => API.get(url),
   post: (url: string, data: any) => API.post(url, data),
